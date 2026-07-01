@@ -1,8 +1,9 @@
 export type Lang = 'en' | 'sr'
 
 const en = {
-  'home.title': 'CorpusAI',
-  'home.subtitle': 'Your subject-specific AI tutor',
+  'home.title': 'Your AI Study Tutor',
+  'home.subtitle':
+    'Pick a subject to start a focused chat or test yourself with an instant quiz.',
   'nav.chat': 'Chat',
   'nav.quiz': 'Quiz',
   'chat.placeholder': 'Ask a question...',
@@ -18,13 +19,14 @@ const en = {
   'quiz.difficulty.MEDIUM': 'Medium',
   'quiz.difficulty.HARD': 'Hard',
   'error.generic': 'Something went wrong. Please try again.',
+  'error.retry': 'Retry',
 } as const
 
 type TranslationKey = keyof typeof en
 
 const sr: Record<TranslationKey, string> = {
-  'home.title': 'CorpusAI',
-  'home.subtitle': 'Vaš AI tutor za pojedinačne predmete',
+  'home.title': 'Vaš AI pomoćnik za učenje',
+  'home.subtitle': 'Izaberite predmet da započnete razgovor ili proverite znanje kvizom.',
   'nav.chat': 'Čet',
   'nav.quiz': 'Kviz',
   'chat.placeholder': 'Postavite pitanje...',
@@ -40,6 +42,7 @@ const sr: Record<TranslationKey, string> = {
   'quiz.difficulty.MEDIUM': 'Srednje',
   'quiz.difficulty.HARD': 'Teško',
   'error.generic': 'Nešto je pošlo po zlu. Pokušajte ponovo.',
+  'error.retry': 'Pokušaj ponovo',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
