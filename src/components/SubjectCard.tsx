@@ -22,10 +22,10 @@ function SubjectCard({ subject }: SubjectCardProps) {
           <CardDescription className="mt-1.5">{subject.displayNameSr}</CardDescription>
         </div>
         <div className="flex gap-2.5">
-          <Button asChild className="flex-1">
+          <Button asChild size="lg" className="h-11 flex-1">
             <Link to={`/chat/${subject.id}`}>{t('nav.chat', lang)}</Link>
           </Button>
-          <Button asChild variant="outline" className="flex-1">
+          <Button asChild size="lg" variant="outline" className="h-11 flex-1">
             <Link to={`/quiz/${subject.id}`}>{t('nav.quiz', lang)}</Link>
           </Button>
         </div>
