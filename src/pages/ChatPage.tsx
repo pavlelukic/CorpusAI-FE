@@ -105,7 +105,8 @@ function ChatPage() {
           <button
             type="button"
             onClick={clearChat}
-            className="h-[34px] shrink-0 rounded-[9px] border border-border bg-card px-3.5 text-[13px] font-semibold whitespace-nowrap text-foreground"
+            disabled={!hasMessages}
+            className="h-[34px] shrink-0 rounded-[9px] border border-border bg-card px-3.5 text-[13px] font-semibold whitespace-nowrap text-foreground disabled:pointer-events-none disabled:opacity-50"
           >
             {t('chat.newChat', lang)}
           </button>
@@ -160,7 +161,7 @@ function ChatPage() {
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder={t('chat.placeholder', lang)}
-            className="max-h-[116px] flex-1 resize-none rounded-[14px]"
+            className="min-h-[44px] max-h-[116px] flex-1 resize-none rounded-[14px] px-3.5 py-[11px] text-[15px] leading-[22px]"
           />
           <Button
             type="button"

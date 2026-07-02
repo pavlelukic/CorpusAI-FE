@@ -62,5 +62,5 @@ export function t(key: TranslationKey, lang: Lang, vars?: Record<string, string>
 
 export const chatChips: Record<Lang, string[]> = {
   en: ['Explain a key concept', 'Give me a real-world example', 'What should I focus on?'],
-  sr: ['Objasni ključni pojam', 'Daj mi primer iz prakse', 'Na šta treba da se fokusiram?'],
+  sr: ['Objasni mi jedan ključni pojam', 'Daj mi primer iz prakse', 'Na šta treba da se fokusiram?'],
 }
