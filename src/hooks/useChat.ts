@@ -62,6 +62,7 @@ export function useChat(subjectId: string) {
       subjectId,
       sessionIdRef.current,
       trimmed,
+      lang,
       (token) => {
         const updated = [...messagesRef.current]
         const last = updated[updated.length - 1]
