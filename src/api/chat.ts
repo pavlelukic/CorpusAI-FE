@@ -1,6 +1,10 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { API_BASE_URL } from '@/lib/api'
 
+interface ChatChunkResponse {
+  token: string
+}
+
 export function streamChat(
   subjectId: string,
   sessionId: string,
@@ -22,11 +26,11 @@ export function streamChat(
       }
     },
     onmessage(event) {
-      if (event.data === '[DONE]') {
-        onDone()
-        return
-      }
-      onToken(event.data)
+      const chunk: ChatChunkResponse = JSON.parse(event.data)
+      onToken(chunk.token)
+    },
+    onclose() {
+      onDone()
     },
     onerror(err) {
       if (!controller.signal.aborted) onError(err)
