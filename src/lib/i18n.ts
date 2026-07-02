@@ -9,6 +9,8 @@ const en = {
   'chat.placeholder': 'Ask a question...',
   'chat.send': 'Send',
   'chat.newChat': 'New chat',
+  'chat.emptyTitle': 'What would you like to know about {{subject}}?',
+  'chat.emptyHint': 'Ask anything from the course, or start with an example below.',
   'quiz.generate': 'Generate quiz',
   'quiz.topic': 'Topic',
   'quiz.count': 'Number of cards',
@@ -32,6 +34,8 @@ const sr: Record<TranslationKey, string> = {
   'chat.placeholder': 'Postavite pitanje...',
   'chat.send': 'Pošalji',
   'chat.newChat': 'Novi razgovor',
+  'chat.emptyTitle': 'Šta biste želeli da saznate o predmetu {{subject}}?',
+  'chat.emptyHint': 'Pitajte bilo šta iz gradiva, ili počnite sa primerom ispod.',
   'quiz.generate': 'Generiši kviz',
   'quiz.topic': 'Tema',
   'quiz.count': 'Broj kartica',
@@ -47,6 +51,16 @@ const sr: Record<TranslationKey, string> = {
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
 
-export function t(key: TranslationKey, lang: Lang): string {
-  return translations[lang][key]
+export function t(key: TranslationKey, lang: Lang, vars?: Record<string, string>): string {
+  const template = translations[lang][key]
+  if (!vars) return template
+  return Object.entries(vars).reduce(
+    (result, [name, value]) => result.replaceAll(`{{${name}}}`, value),
+    template,
+  )
+}
+
+export const chatChips: Record<Lang, string[]> = {
+  en: ['Explain a key concept', 'Give me a real-world example', 'What should I focus on?'],
+  sr: ['Objasni ključni pojam', 'Daj mi primer iz prakse', 'Na šta treba da se fokusiram?'],
 }
