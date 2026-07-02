@@ -49,12 +49,16 @@ function QuizPage() {
           <span className="text-xs text-muted-foreground">{subject?.displayNameSr}</span>
         </div>
         <div className="flex items-center justify-self-end gap-2">
-          <div className="flex h-[34px] items-center overflow-hidden rounded-[9px] border border-border">
+          <div
+            className="flex h-[34px] items-center overflow-hidden rounded-[9px] border border-border"
+            title={status !== 'idle' ? t('quiz.langLocked', lang) : undefined}
+          >
             <button
               type="button"
               onClick={() => lang !== 'en' && toggleLang()}
+              disabled={status !== 'idle'}
               className={cn(
-                'h-[34px] px-3 text-xs font-semibold tracking-[0.02em]',
+                'h-[34px] px-3 text-xs font-semibold tracking-[0.02em] disabled:pointer-events-none disabled:opacity-50',
                 lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
               )}
             >
@@ -64,8 +68,9 @@ function QuizPage() {
             <button
               type="button"
               onClick={() => lang !== 'sr' && toggleLang()}
+              disabled={status !== 'idle'}
               className={cn(
-                'h-[34px] px-3 text-xs font-semibold tracking-[0.02em]',
+                'h-[34px] px-3 text-xs font-semibold tracking-[0.02em] disabled:pointer-events-none disabled:opacity-50',
                 lang === 'sr' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
               )}
             >
