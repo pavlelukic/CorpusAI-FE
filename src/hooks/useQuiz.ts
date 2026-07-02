@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { generateQuiz } from '@/api/quiz'
+import { useLang } from '@/lib/LangContext'
 import type { ApiError, Flashcard } from '@/types'
 
 type QuizStatus = 'idle' | 'loading' | 'active' | 'done'
@@ -11,12 +12,13 @@ interface GenerateParams {
 }
 
 export function useQuiz(subjectId: string) {
+  const { lang } = useLang()
   const [status, setStatus] = useState<QuizStatus>('idle')
   const [cards, setCards] = useState<Flashcard[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const mutation = useMutation<Flashcard[], ApiError, GenerateParams>({
-    mutationFn: ({ topic, count }) => generateQuiz(subjectId, topic, count),
+    mutationFn: ({ topic, count }) => generateQuiz(subjectId, lang, topic, count),
     onSuccess: (data) => {
       setCards(data)
       setCurrentIndex(0)
