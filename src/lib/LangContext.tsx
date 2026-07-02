@@ -11,7 +11,7 @@ interface LangContextValue {
 const LangContext = createContext<LangContextValue | null>(null)
 
 function getInitialLang(): Lang {
-  return localStorage.getItem(STORAGE_KEY) === 'sr' ? 'sr' : 'en'
+  return localStorage.getItem(STORAGE_KEY) === 'en' ? 'en' : 'sr'
 }
 
 export function LangProvider({ children }: { children: ReactNode }) {
