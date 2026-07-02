@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTheme } from 'next-themes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -28,10 +28,6 @@ function FlashCard({ card }: FlashCardProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
   const [isFlipped, setIsFlipped] = useState(false)
-
-  useEffect(() => {
-    setIsFlipped(false)
-  }, [card])
 
   const diffColor = DIFFICULTY_COLORS[card.difficulty]
   const badgeStyle = {
