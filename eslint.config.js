@@ -19,4 +19,11 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // intentional component + non-component co-exports (shadcn variants, context + hook)
+    files: ['src/components/ui/**/*.tsx', 'src/lib/LangContext.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])

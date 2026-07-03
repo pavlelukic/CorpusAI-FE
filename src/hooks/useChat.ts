@@ -10,35 +10,35 @@ import {
   setChatSession,
 } from '@/lib/localStorage'
 import { useLang } from '@/lib/LangContext'
-import { t } from '@/lib/i18n'
+import { t, type Lang } from '@/lib/i18n'
 import type { ChatMessage } from '@/types'
+
+function loadSessionId(subjectId: string, lang: Lang): string {
+  const existing = getChatSession(subjectId, lang)
+  if (existing) return existing
+  const created = uuidv4()
+  setChatSession(subjectId, lang, created)
+  return created
+}
 
 export function useChat(subjectId: string) {
   const { lang } = useLang()
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => getChatMessages(subjectId, lang))
   const [isStreaming, setIsStreaming] = useState(false)
-  const messagesRef = useRef<ChatMessage[]>([])
-  const sessionIdRef = useRef<string>('')
+  const messagesRef = useRef<ChatMessage[]>(messages)
+  const sessionIdRef = useRef<string | null>(null)
+  if (sessionIdRef.current === null) {
+    sessionIdRef.current = loadSessionId(subjectId, lang)
+  }
   const cancelStreamRef = useRef<(() => void) | null>(null)
 
+  // subjectId/lang changes are handled by remounting via a `key`, not here.
   useEffect(() => {
-    let sessionId = getChatSession(subjectId, lang)
-    if (!sessionId) {
-      sessionId = uuidv4()
-      setChatSession(subjectId, lang, sessionId)
-    }
-    sessionIdRef.current = sessionId
-
-    const stored = getChatMessages(subjectId, lang)
-    messagesRef.current = stored
-    setMessages(stored)
-    setIsStreaming(false)
-
     return () => {
       cancelStreamRef.current?.()
       cancelStreamRef.current = null
     }
-  }, [subjectId, lang])
+  }, [])
 
   function updateMessages(next: ChatMessage[]) {
     messagesRef.current = next
@@ -49,18 +49,21 @@ export function useChat(subjectId: string) {
     const trimmed = message.trim()
     if (!trimmed || isStreaming) return
 
-    const next: ChatMessage[] = [
-      ...messagesRef.current,
-      { role: 'user', content: trimmed },
+    const withUserMessage: ChatMessage[] = [...messagesRef.current, { role: 'user', content: trimmed }]
+    const withPlaceholder: ChatMessage[] = [
+      ...withUserMessage,
       { role: 'assistant', content: '' },
     ]
-    updateMessages(next)
-    setChatMessages(subjectId, lang, next)
+
+    updateMessages(withPlaceholder)
+    // Persist only the user message — avoids a stray empty assistant bubble if the
+    // stream never finishes. The full pair is persisted once onDone fires.
+    setChatMessages(subjectId, lang, withUserMessage)
     setIsStreaming(true)
 
     cancelStreamRef.current = streamChat(
       subjectId,
-      sessionIdRef.current,
+      sessionIdRef.current!, // always initialized by the lazy-init check above
       trimmed,
       lang,
       (token) => {

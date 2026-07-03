@@ -15,6 +15,12 @@ const MAX_TEXTAREA_HEIGHT = 116
 function ChatPage() {
   const { subjectId = '' } = useParams()
   const { lang } = useLang()
+  // key forces a remount (and a fresh useChat) on subject/lang change
+  return <ChatThread key={`${subjectId}-${lang}`} subjectId={subjectId} />
+}
+
+function ChatThread({ subjectId }: { subjectId: string }) {
+  const { lang } = useLang()
   const { subjects } = useSubjects()
   const subject = subjects?.find((s) => s.id === subjectId)
   const { messages, isStreaming, send, clearChat } = useChat(subjectId)
