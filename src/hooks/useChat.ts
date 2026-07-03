@@ -22,14 +22,14 @@ export function useChat(subjectId: string) {
   const cancelStreamRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
-    let sessionId = getChatSession(subjectId)
+    let sessionId = getChatSession(subjectId, lang)
     if (!sessionId) {
       sessionId = uuidv4()
-      setChatSession(subjectId, sessionId)
+      setChatSession(subjectId, lang, sessionId)
     }
     sessionIdRef.current = sessionId
 
-    const stored = getChatMessages(subjectId)
+    const stored = getChatMessages(subjectId, lang)
     messagesRef.current = stored
     setMessages(stored)
     setIsStreaming(false)
@@ -38,7 +38,7 @@ export function useChat(subjectId: string) {
       cancelStreamRef.current?.()
       cancelStreamRef.current = null
     }
-  }, [subjectId])
+  }, [subjectId, lang])
 
   function updateMessages(next: ChatMessage[]) {
     messagesRef.current = next
@@ -55,7 +55,7 @@ export function useChat(subjectId: string) {
       { role: 'assistant', content: '' },
     ]
     updateMessages(next)
-    setChatMessages(subjectId, next)
+    setChatMessages(subjectId, lang, next)
     setIsStreaming(true)
 
     cancelStreamRef.current = streamChat(
@@ -72,7 +72,7 @@ export function useChat(subjectId: string) {
       () => {
         setIsStreaming(false)
         cancelStreamRef.current = null
-        setChatMessages(subjectId, messagesRef.current)
+        setChatMessages(subjectId, lang, messagesRef.current)
       },
       () => {
         setIsStreaming(false)
@@ -85,9 +85,9 @@ export function useChat(subjectId: string) {
   function clearChat() {
     cancelStreamRef.current?.()
     cancelStreamRef.current = null
-    clearStoredChat(subjectId)
+    clearStoredChat(subjectId, lang)
     const newSessionId = uuidv4()
-    setChatSession(subjectId, newSessionId)
+    setChatSession(subjectId, lang, newSessionId)
     sessionIdRef.current = newSessionId
     setIsStreaming(false)
     updateMessages([])
