@@ -39,7 +39,7 @@ function FlashCard({ card }: FlashCardProps) {
     <div style={{ perspective: '1600px', width: '100%' }}>
       <div
         onClick={() => setIsFlipped((prev) => !prev)}
-        className="relative aspect-[3/2] w-full cursor-pointer [transform-style:preserve-3d]"
+        className="relative aspect-[4/5] w-full cursor-pointer [transform-style:preserve-3d] sm:aspect-[3/2]"
         style={{
           transform: isFlipped ? 'rotateY(180deg)' : 'none',
           transition: 'transform 0.6s cubic-bezier(0.4, 0.15, 0.2, 1)',
@@ -50,7 +50,7 @@ function FlashCard({ card }: FlashCardProps) {
           <span className="self-start text-[11px] font-bold tracking-[0.14em] text-muted-foreground uppercase">
             {t('quiz.question', lang)}
           </span>
-          <div className="flex flex-1 items-center justify-center py-3">
+          <div className="flex flex-1 justify-center overflow-y-auto py-3 [align-items:safe_center]">
             <p className="font-heading text-[25px] leading-[1.35] font-medium text-foreground">
               {card.question}
             </p>

@@ -37,6 +37,12 @@ const en = {
   'quiz.newQuiz': 'New quiz',
   'error.generic': 'Something went wrong. Please try again.',
   'error.retry': 'Retry',
+  'error.boundaryTitle': 'Something went wrong',
+  'error.boundarySubtitle': 'An unexpected error occurred. Try reloading the page.',
+  'error.reload': 'Reload page',
+  'notFound.title': 'Page not found',
+  'notFound.subtitle': "The page you're looking for doesn't exist.",
+  'notFound.backHome': 'Back to home',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -77,6 +83,12 @@ const sr: Record<TranslationKey, string> = {
   'quiz.newQuiz': 'Novi kviz',
   'error.generic': 'Nešto je pošlo po zlu. Pokušajte ponovo.',
   'error.retry': 'Pokušaj ponovo',
+  'error.boundaryTitle': 'Nešto je pošlo po zlu',
+  'error.boundarySubtitle': 'Došlo je do neočekivane greške. Pokušajte da osvežite stranicu.',
+  'error.reload': 'Osveži stranicu',
+  'notFound.title': 'Stranica nije pronađena',
+  'notFound.subtitle': 'Stranica koju tražite ne postoji.',
+  'notFound.backHome': 'Nazad na početnu',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
