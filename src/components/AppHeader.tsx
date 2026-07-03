@@ -120,11 +120,32 @@ function AppHeader({
     )
   }
 
+  const titleBlock = (
+    <div className="flex min-w-0 flex-col items-center overflow-hidden text-center leading-[1.15]">
+      {title}
+    </div>
+  )
+
   return (
-    <header className="grid h-15 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-border bg-background/85 px-5 backdrop-blur-md backdrop-saturate-150">
-      <div className="justify-self-start">{start}</div>
-      <div className="flex flex-col items-center leading-[1.15]">{title}</div>
-      <div className="justify-self-end">{controls}</div>
+    <header className="shrink-0 border-b border-border bg-background/85 px-5 backdrop-blur-md backdrop-saturate-150">
+      {/* Below sm: back/controls on one row, subject name on its own row underneath —
+          cramming all three into one row left no room for the subject name on phones. */}
+      <div className="flex flex-col sm:hidden">
+        <div className="flex items-center justify-between py-2.5">
+          {start}
+          {controls}
+        </div>
+        <div className="border-t border-border py-2">{titleBlock}</div>
+      </div>
+
+      {/* sm and up: back/controls columns are equal width so the title is truly
+          centered in the viewport, not just centered within an off-center cell.
+          Safe here since mobile's overflow risk is handled by the stacked layout above. */}
+      <div className="hidden h-15 grid-cols-[1fr_auto_1fr] items-center gap-3 sm:grid">
+        <div className="justify-self-start">{start}</div>
+        {titleBlock}
+        <div className="justify-self-end">{controls}</div>
+      </div>
     </header>
   )
 }

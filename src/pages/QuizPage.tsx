@@ -36,10 +36,12 @@ function QuizPage() {
         compact
         title={
           <>
-            <span className="text-[15px] font-semibold tracking-[-0.02em] text-foreground">
+            <span className="max-w-full truncate text-[15px] font-semibold tracking-[-0.02em] text-foreground">
               {subject?.displayName ?? subjectId}
             </span>
-            <span className="text-xs text-muted-foreground">{subject?.displayNameSr}</span>
+            <span className="max-w-full truncate text-xs text-muted-foreground">
+              {subject?.displayNameSr}
+            </span>
           </>
         }
         langLocked={status !== 'idle'}
