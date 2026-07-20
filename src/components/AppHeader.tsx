@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import LangThemeToggle from '@/components/LangThemeToggle'
+import UserMenu from '@/components/UserMenu'
 import { cn } from '@/lib/utils'
 
 interface AppHeaderProps {
@@ -47,12 +48,15 @@ function AppHeader({
   )
 
   const controls = (
-    <LangThemeToggle
-      compact={compact}
-      langLocked={langLocked}
-      langLockedHint={langLockedHint}
-      trailingAction={trailingAction}
-    />
+    <div className="flex items-center gap-2">
+      <LangThemeToggle
+        compact={compact}
+        langLocked={langLocked}
+        langLockedHint={langLockedHint}
+        trailingAction={trailingAction}
+      />
+      <UserMenu compact={compact} />
+    </div>
   )
 
   if (!title) {

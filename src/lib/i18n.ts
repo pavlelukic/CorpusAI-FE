@@ -67,6 +67,11 @@ const en = {
   'common.loading': 'Loading…',
   'forbidden.title': 'Access denied',
   'forbidden.subtitle': "You don't have permission to view this page.",
+  'auth.logout': 'Log out',
+  'auth.role.USER': 'Student',
+  'auth.role.ADMIN': 'Admin',
+  'home.empty.title': 'No subjects yet',
+  'home.empty.subtitle': 'Ask an administrator to grant you access to a subject.',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -137,6 +142,11 @@ const sr: Record<TranslationKey, string> = {
   'common.loading': 'Učitavanje…',
   'forbidden.title': 'Pristup odbijen',
   'forbidden.subtitle': 'Nemate dozvolu za pristup ovoj stranici.',
+  'auth.logout': 'Odjavi se',
+  'auth.role.USER': 'Student',
+  'auth.role.ADMIN': 'Admin',
+  'home.empty.title': 'Još uvek nema predmeta',
+  'home.empty.subtitle': 'Zamolite administratora da vam odobri pristup predmetu.',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
