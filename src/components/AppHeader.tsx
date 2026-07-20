@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
-import { useLang } from '@/lib/LangContext'
+import LangThemeToggle from '@/components/LangThemeToggle'
+import UserMenu from '@/components/UserMenu'
 import { cn } from '@/lib/utils'
 
 interface AppHeaderProps {
@@ -26,14 +25,7 @@ function AppHeader({
   langLockedHint,
   compact = false,
 }: AppHeaderProps) {
-  const { lang, toggleLang } = useLang()
-  const { theme, setTheme } = useTheme()
-  const isDark = theme === 'dark'
-
-  const controlHeight = compact ? 'h-[34px]' : 'h-9'
   const controlSize = compact ? 'size-[34px]' : 'size-9'
-  const controlText = compact ? 'text-xs' : 'text-[13px]'
-  const controlPadX = compact ? 'px-3' : 'px-[13px]'
 
   const start = backTo ? (
     <Link
@@ -57,55 +49,13 @@ function AppHeader({
 
   const controls = (
     <div className="flex items-center gap-2">
-      <div
-        className={cn(
-          'flex items-center overflow-hidden rounded-[9px] border border-border',
-          controlHeight,
-        )}
-        title={langLocked ? langLockedHint : undefined}
-      >
-        <button
-          type="button"
-          onClick={() => lang !== 'en' && toggleLang()}
-          disabled={langLocked}
-          className={cn(
-            controlHeight,
-            controlPadX,
-            controlText,
-            'font-semibold tracking-[0.02em] disabled:pointer-events-none disabled:opacity-50',
-            lang === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
-          )}
-        >
-          EN
-        </button>
-        <div className={cn('w-px bg-border', controlHeight)} />
-        <button
-          type="button"
-          onClick={() => lang !== 'sr' && toggleLang()}
-          disabled={langLocked}
-          className={cn(
-            controlHeight,
-            controlPadX,
-            controlText,
-            'font-semibold tracking-[0.02em] disabled:pointer-events-none disabled:opacity-50',
-            lang === 'sr' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
-          )}
-        >
-          SR
-        </button>
-      </div>
-      <button
-        type="button"
-        aria-label="Toggle dark mode"
-        onClick={() => setTheme(isDark ? 'light' : 'dark')}
-        className={cn(
-          'flex items-center justify-center rounded-[9px] border border-border bg-card text-muted-foreground',
-          controlSize,
-        )}
-      >
-        {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-      </button>
-      {trailingAction}
+      <LangThemeToggle
+        compact={compact}
+        langLocked={langLocked}
+        langLockedHint={langLockedHint}
+        trailingAction={trailingAction}
+      />
+      <UserMenu compact={compact} />
     </div>
   )
 
