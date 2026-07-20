@@ -21,7 +21,7 @@ export default defineConfig([
   },
   {
     // intentional component + non-component co-exports (shadcn variants, context + hook)
-    files: ['src/components/ui/**/*.tsx', 'src/lib/LangContext.tsx'],
+    files: ['src/components/ui/**/*.tsx', 'src/lib/LangContext.tsx', 'src/lib/AuthContext.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },
