@@ -13,19 +13,21 @@ interface LoginRequest {
 }
 
 export function register(body: RegisterRequest): Promise<AuthResponse> {
-  return apiFetch<AuthResponse>('/api/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(body),
-  })
+  return apiFetch<AuthResponse>(
+    '/api/auth/register',
+    { method: 'POST', body: JSON.stringify(body) },
+    { skipAuthRedirect: true },
+  )
 }
 
 export function login(body: LoginRequest): Promise<AuthResponse> {
-  return apiFetch<AuthResponse>('/api/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(body),
-  })
+  return apiFetch<AuthResponse>(
+    '/api/auth/login',
+    { method: 'POST', body: JSON.stringify(body) },
+    { skipAuthRedirect: true },
+  )
 }
 
 export function me(): Promise<User> {
-  return apiFetch<User>('/api/auth/me')
+  return apiFetch<User>('/api/auth/me', undefined, { skipAuthRedirect: true })
 }
