@@ -64,6 +64,9 @@ const en = {
   'auth.validation.passwordRequired': 'Enter your password',
   'auth.validation.passwordShort': 'Password must be at least 8 characters',
   'auth.validation.nameRequired': 'Enter a display name',
+  'common.loading': 'Loading…',
+  'forbidden.title': 'Access denied',
+  'forbidden.subtitle': "You don't have permission to view this page.",
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -131,6 +134,9 @@ const sr: Record<TranslationKey, string> = {
   'auth.validation.passwordRequired': 'Unesite lozinku',
   'auth.validation.passwordShort': 'Lozinka mora imati najmanje 8 karaktera',
   'auth.validation.nameRequired': 'Unesite ime',
+  'common.loading': 'Učitavanje…',
+  'forbidden.title': 'Pristup odbijen',
+  'forbidden.subtitle': 'Nemate dozvolu za pristup ovoj stranici.',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
