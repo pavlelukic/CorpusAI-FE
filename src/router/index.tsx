@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet } from 'react-router'
+import { createBrowserRouter, Navigate, Outlet } from 'react-router'
 import HomePage from '@/pages/HomePage'
 import ChatPage from '@/pages/ChatPage'
 import QuizPage from '@/pages/QuizPage'
@@ -6,6 +6,11 @@ import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import RequireAuth from '@/components/RequireAuth'
+import RequireAdmin from '@/components/RequireAdmin'
+import AdminLayout from '@/components/admin/AdminLayout'
+import AdminSubjectsPage from '@/pages/admin/AdminSubjectsPage'
+import AdminDocumentsPage from '@/pages/admin/AdminDocumentsPage'
+import AdminUsersPage from '@/pages/admin/AdminUsersPage'
 import RouteErrorFallback from '@/components/RouteErrorFallback'
 
 export const router = createBrowserRouter([
@@ -21,6 +26,21 @@ export const router = createBrowserRouter([
           { path: '/', element: <HomePage /> },
           { path: '/chat/:subjectId', element: <ChatPage /> },
           { path: '/quiz/:subjectId', element: <QuizPage /> },
+          {
+            element: <RequireAdmin />,
+            children: [
+              {
+                path: '/admin',
+                element: <AdminLayout />,
+                children: [
+                  { index: true, element: <Navigate to="/admin/subjects" replace /> },
+                  { path: 'subjects', element: <AdminSubjectsPage /> },
+                  { path: 'subjects/:subjectId/documents', element: <AdminDocumentsPage /> },
+                  { path: 'users', element: <AdminUsersPage /> },
+                ],
+              },
+            ],
+          },
         ],
       },
       { path: '*', element: <NotFoundPage /> },

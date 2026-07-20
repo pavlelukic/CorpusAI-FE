@@ -72,6 +72,15 @@ const en = {
   'auth.role.ADMIN': 'Admin',
   'home.empty.title': 'No subjects yet',
   'home.empty.subtitle': 'Ask an administrator to grant you access to a subject.',
+  'admin.link': 'Admin',
+  'admin.nav.users': 'Users',
+  'admin.nav.subjects': 'Subjects',
+  'admin.nav.metrics': 'Metrics',
+  'admin.nav.metricsSoon': 'soon',
+  'admin.nav.openMenu': 'Open admin menu',
+  'admin.subjects.title': 'Subjects',
+  'admin.users.title': 'Users',
+  'admin.documents.title': 'Documents',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -147,6 +156,15 @@ const sr: Record<TranslationKey, string> = {
   'auth.role.ADMIN': 'Admin',
   'home.empty.title': 'Još uvek nema predmeta',
   'home.empty.subtitle': 'Zamolite administratora da vam odobri pristup predmetu.',
+  'admin.link': 'Admin',
+  'admin.nav.users': 'Korisnici',
+  'admin.nav.subjects': 'Predmeti',
+  'admin.nav.metrics': 'Metrike',
+  'admin.nav.metricsSoon': 'uskoro',
+  'admin.nav.openMenu': 'Otvori admin meni',
+  'admin.subjects.title': 'Predmeti',
+  'admin.users.title': 'Korisnici',
+  'admin.documents.title': 'Dokumenti',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
