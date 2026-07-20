@@ -22,3 +22,17 @@ export interface ApiError {
   error: string
   message: string
 }
+
+export type Role = 'USER' | 'ADMIN'
+
+export interface User {
+  id: string
+  email: string
+  displayName: string
+  role: Role
+}
+
+export interface AuthResponse {
+  token: string
+  user: User
+}
