@@ -1,5 +1,6 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { API_BASE_URL } from '@/lib/api'
+import { getToken } from '@/lib/auth'
 import type { Lang } from '@/lib/i18n'
 
 interface ChatChunkResponse {
@@ -16,10 +17,14 @@ export function streamChat(
   onError: (err: unknown) => void,
 ): () => void {
   const controller = new AbortController()
+  const token = getToken()
 
   fetchEventSource(`${API_BASE_URL}/api/chat/${subjectId}/message`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ sessionId, message, lang }),
     signal: controller.signal,
     async onopen(response) {
