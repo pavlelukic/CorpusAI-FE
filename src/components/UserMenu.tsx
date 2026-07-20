@@ -4,7 +4,6 @@ import { useAuth } from '@/lib/AuthContext'
 import { useLang } from '@/lib/LangContext'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +24,7 @@ interface UserMenuProps {
   compact?: boolean
 }
 
-/** Initials avatar with a dropdown: name, email, role badge, and log out.
+/** Initials avatar with a dropdown: name, email, role, and log out.
  *  Renders nothing when signed out (e.g. a public 404). */
 function UserMenu({ compact = false }: UserMenuProps) {
   const { user, logout } = useAuth()
@@ -54,13 +53,17 @@ function UserMenu({ compact = false }: UserMenuProps) {
         {getInitials(user.displayName)}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel className="flex flex-col gap-1 py-2">
+        <DropdownMenuLabel className="flex flex-col gap-0.5 py-2">
           <span className="text-[14px] font-semibold text-foreground">{user.displayName}</span>
           <span className="text-[12px] font-normal text-muted-foreground">{user.email}</span>
-          <Badge variant={isAdmin ? 'default' : 'secondary'} className="mt-1">
-            {t(isAdmin ? 'auth.role.ADMIN' : 'auth.role.USER', lang)}
-          </Badge>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <div className="flex items-center gap-2 px-2 py-1.5">
+          <span className="size-[9px] shrink-0 rounded-full bg-primary" />
+          <span className="text-[13px] font-medium text-foreground">
+            {t(isAdmin ? 'auth.role.ADMIN' : 'auth.role.USER', lang)}
+          </span>
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut />
