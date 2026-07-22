@@ -144,6 +144,25 @@ const en = {
   'admin.documents.replaceConfirm.body':
     'A document named "{{name}}" already exists. Re-uploading will replace it and re-index its content. Continue?',
   'admin.documents.replaceConfirm.confirm': 'Replace',
+  'admin.users.subtitle': 'View users and manage which subjects they can access.',
+  'admin.users.empty': 'No users yet.',
+  'admin.users.col.name': 'Name',
+  'admin.users.col.email': 'Email',
+  'admin.users.col.role': 'Role',
+  'admin.users.col.subjects': 'Subjects',
+  'admin.users.col.actions': 'Actions',
+  'admin.users.noAccess': 'No access yet',
+  'admin.users.allAccess': 'All subjects',
+  'admin.users.manage': 'Manage access',
+  'admin.users.manage.title': 'Manage access',
+  'admin.users.manage.subtitle': 'Grant or revoke subject access for this user.',
+  'admin.users.manage.noSubjects': 'No subjects to grant yet.',
+  'admin.users.manage.done': 'Done',
+  'admin.users.grantSuccess': 'Access granted',
+  'admin.users.revokeSuccess': 'Access revoked',
+  'admin.users.revokeConfirm.title': 'Revoke access?',
+  'admin.users.revokeConfirm.body': 'This user will lose access to "{{subject}}".',
+  'admin.users.revokeConfirm.confirm': 'Revoke',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -292,6 +311,25 @@ const sr: Record<TranslationKey, string> = {
   'admin.documents.replaceConfirm.body':
     'Dokument pod nazivom "{{name}}" već postoji. Ponovno postavljanje će ga zameniti i ponovo indeksirati sadržaj. Nastaviti?',
   'admin.documents.replaceConfirm.confirm': 'Zameni',
+  'admin.users.subtitle': 'Pregledajte korisnike i upravljajte njihovim pristupom predmetima.',
+  'admin.users.empty': 'Još uvek nema korisnika.',
+  'admin.users.col.name': 'Ime',
+  'admin.users.col.email': 'Email',
+  'admin.users.col.role': 'Uloga',
+  'admin.users.col.subjects': 'Predmeti',
+  'admin.users.col.actions': 'Akcije',
+  'admin.users.noAccess': 'Još uvek nema pristupa',
+  'admin.users.allAccess': 'Svi predmeti',
+  'admin.users.manage': 'Upravljaj pristupom',
+  'admin.users.manage.title': 'Upravljaj pristupom',
+  'admin.users.manage.subtitle': 'Odobrite ili oduzmite pristup predmetima ovom korisniku.',
+  'admin.users.manage.noSubjects': 'Još uvek nema predmeta za dodelu.',
+  'admin.users.manage.done': 'Gotovo',
+  'admin.users.grantSuccess': 'Pristup je odobren',
+  'admin.users.revokeSuccess': 'Pristup je oduzet',
+  'admin.users.revokeConfirm.title': 'Oduzeti pristup?',
+  'admin.users.revokeConfirm.body': 'Ovaj korisnik će izgubiti pristup predmetu "{{subject}}".',
+  'admin.users.revokeConfirm.confirm': 'Oduzmi',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
