@@ -1,100 +1,149 @@
 import { useEffect, useRef, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { streamChat } from '@/api/chat'
-import {
-  clearChat as clearStoredChat,
-  getChatMessages,
-  getChatSession,
-  setChatMessages,
-  setChatSession,
-} from '@/lib/localStorage'
+import { getMessages, streamMessage, STREAM_INCOMPLETE } from '@/api/chats'
 import { useLang } from '@/lib/LangContext'
-import { t, type Lang } from '@/lib/i18n'
-import type { ChatMessage } from '@/types'
+import { t } from '@/lib/i18n'
+import type { ApiError, ChatMessage, ChatMessageResponse } from '@/types'
 
-function loadSessionId(subjectId: string, lang: Lang): string {
-  const existing = getChatSession(subjectId, lang)
-  if (existing) return existing
-  const created = uuidv4()
-  setChatSession(subjectId, lang, created)
-  return created
-}
-
-export function useChat(subjectId: string) {
+export function useChat(sessionId: string) {
   const { lang } = useLang()
-  const [messages, setMessages] = useState<ChatMessage[]>(() => getChatMessages(subjectId, lang))
-  const [isStreaming, setIsStreaming] = useState(false)
-  const messagesRef = useRef<ChatMessage[]>(messages)
-  const sessionIdRef = useRef<string | null>(null)
-  if (sessionIdRef.current === null) {
-    sessionIdRef.current = loadSessionId(subjectId, lang)
-  }
-  const cancelStreamRef = useRef<(() => void) | null>(null)
+  const queryClient = useQueryClient()
+  const transcriptKey = ['chatMessages', sessionId]
 
-  // subjectId/lang changes are handled by remounting via a `key`, not here.
+  const {
+    data: history,
+    isLoading,
+    error,
+  } = useQuery<ChatMessageResponse[], ApiError>({
+    queryKey: transcriptKey,
+    queryFn: () => getMessages(sessionId),
+    enabled: sessionId.length > 0,
+    // Only this tab writes to the transcript, and a refetch mid-turn would briefly show the
+    // server's copy of a message that is still living in local state.
+    refetchOnWindowFocus: false,
+  })
+
+  // The turn in flight. Completed turns move into the query cache, so this is empty at rest.
+  const [live, setLive] = useState<ChatMessage[]>([])
+  const [isStreaming, setIsStreaming] = useState(false)
+
+  const cancelRef = useRef<(() => void) | null>(null)
+  const streamedRef = useRef('')
+  const lastSentRef = useRef('')
+
   useEffect(() => {
     return () => {
-      cancelStreamRef.current?.()
-      cancelStreamRef.current = null
+      cancelRef.current?.()
+      cancelRef.current = null
     }
   }, [])
 
-  function updateMessages(next: ChatMessage[]) {
-    messagesRef.current = next
-    setMessages(next)
-  }
-
-  function send(message: string) {
-    const trimmed = message.trim()
-    if (!trimmed || isStreaming) return
-
-    const withUserMessage: ChatMessage[] = [...messagesRef.current, { role: 'user', content: trimmed }]
-    const withPlaceholder: ChatMessage[] = [
-      ...withUserMessage,
+  function runStream(text: string) {
+    streamedRef.current = ''
+    lastSentRef.current = text
+    setLive([
+      { role: 'user', content: text },
       { role: 'assistant', content: '' },
-    ]
-
-    updateMessages(withPlaceholder)
-    // Persist only the user message — avoids a stray empty assistant bubble if the
-    // stream never finishes. The full pair is persisted once onDone fires.
-    setChatMessages(subjectId, lang, withUserMessage)
+    ])
     setIsStreaming(true)
 
-    cancelStreamRef.current = streamChat(
-      subjectId,
-      sessionIdRef.current!, // always initialized by the lazy-init check above
-      trimmed,
-      lang,
-      (token) => {
-        const updated = [...messagesRef.current]
-        const last = updated[updated.length - 1]
-        updated[updated.length - 1] = { ...last, content: last.content + token }
-        updateMessages(updated)
+    cancelRef.current = streamMessage(sessionId, text, {
+      onToken: (token) => {
+        streamedRef.current += token
+        setLive((prev) => {
+          if (prev.length === 0) return prev
+          const updated = [...prev]
+          const last = updated[updated.length - 1]
+          updated[updated.length - 1] = { ...last, content: last.content + token }
+          return updated
+        })
       },
-      () => {
+      onDone: (done) => {
+        cancelRef.current = null
         setIsStreaming(false)
-        cancelStreamRef.current = null
-        setChatMessages(subjectId, lang, messagesRef.current)
+
+        // Write the finished turn in from the `done` payload so the stats appear immediately,
+        // then refetch: the server holds the real message ids and the model that actually ran,
+        // neither of which the stream tells us.
+        const now = new Date().toISOString()
+        queryClient.setQueryData<ChatMessageResponse[]>(transcriptKey, (cached) => [
+          ...(cached ?? []),
+          {
+            id: `local-${done.messageId}`,
+            role: 'USER',
+            content: text,
+            createdAt: now,
+            inputTokens: null,
+            outputTokens: null,
+            latencyMs: null,
+            model: null,
+          },
+          {
+            id: done.messageId,
+            role: 'ASSISTANT',
+            content: streamedRef.current,
+            createdAt: now,
+            inputTokens: done.inputTokens,
+            outputTokens: done.outputTokens,
+            latencyMs: done.latencyMs,
+            model: null,
+          },
+        ])
+        setLive([])
+        queryClient.invalidateQueries({ queryKey: transcriptKey })
+        // The server titles a session from its first message, so the list is now stale.
+        queryClient.invalidateQueries({ queryKey: ['chats'] })
       },
-      () => {
+      onError: (err) => {
+        cancelRef.current = null
         setIsStreaming(false)
-        cancelStreamRef.current = null
-        toast.error(t('error.generic', lang))
+        // Leave the half-written reply on screen, flagged, rather than dropping what arrived.
+        setLive((prev) =>
+          prev.map((message, i) =>
+            i === prev.length - 1 && message.role === 'assistant'
+              ? { ...message, failed: true }
+              : message,
+          ),
+        )
+        if (err.error !== STREAM_INCOMPLETE) {
+          toast.error(err.message || t('error.generic', lang))
+        }
       },
-    )
+    })
   }
 
-  function clearChat() {
-    cancelStreamRef.current?.()
-    cancelStreamRef.current = null
-    clearStoredChat(subjectId, lang)
-    const newSessionId = uuidv4()
-    setChatSession(subjectId, lang, newSessionId)
-    sessionIdRef.current = newSessionId
-    setIsStreaming(false)
-    updateMessages([])
+  function send(text: string) {
+    const trimmed = text.trim()
+    if (!trimmed || isStreaming) return
+    runStream(trimmed)
   }
 
-  return { messages, isStreaming, send, clearChat }
+  /** Re-sends the last message. The backend already stored it, so the transcript will hold both. */
+  function retry() {
+    if (isStreaming || !lastSentRef.current) return
+    runStream(lastSentRef.current)
+  }
+
+  const messages: ChatMessage[] = [
+    ...(history ?? []).map((message) => ({
+      id: message.id,
+      role: message.role === 'USER' ? ('user' as const) : ('assistant' as const),
+      content: message.content,
+      // latencyMs is the presence signal: the token counts can be null on their own when a
+      // provider reports none, but a recorded turn always has a latency.
+      usage:
+        message.latencyMs === null
+          ? undefined
+          : {
+              inputTokens: message.inputTokens,
+              outputTokens: message.outputTokens,
+              latencyMs: message.latencyMs,
+              model: message.model,
+            },
+    })),
+    ...live,
+  ]
+
+  return { messages, isStreaming, isLoading, error, send, retry }
 }

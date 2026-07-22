@@ -1,3 +1,5 @@
+import type { Lang } from '@/lib/i18n'
+
 export interface Subject {
   id: string
   displayName: string
@@ -13,9 +15,55 @@ export interface Flashcard {
   difficulty: Difficulty
 }
 
+export type ModelProvider = 'OPENAI' | 'ANTHROPIC'
+
+export interface ChatSession {
+  id: string
+  /** null until the first message is sent - the server derives the title from it. */
+  title: string | null
+  subjectId: string
+  lang: Lang
+  provider: ModelProvider
+  createdAt: string
+}
+
+export interface ChatMessageResponse {
+  id: string
+  role: 'USER' | 'ASSISTANT'
+  content: string
+  createdAt: string
+  // Null on user messages, on replies stored before the backend recorded usage, and when the
+  // usage row failed to write. Token counts are also null on their own when a provider reports
+  // none, so each field is guarded separately.
+  inputTokens: number | null
+  outputTokens: number | null
+  latencyMs: number | null
+  model: string | null
+}
+
+/** What the stats line under a completed assistant reply renders. */
+export interface ChatUsage {
+  inputTokens: number | null
+  outputTokens: number | null
+  latencyMs: number
+  model: string | null
+}
+
+/** Payload of the SSE `done` event, which fires once just before the stream closes. */
+export interface ChatDone {
+  messageId: string
+  inputTokens: number | null
+  outputTokens: number | null
+  latencyMs: number
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  id?: string
+  usage?: ChatUsage
+  /** The stream ended without `done`, so the reply is incomplete and retryable. */
+  failed?: boolean
 }
 
 export interface ApiError {
