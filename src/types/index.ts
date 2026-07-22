@@ -1,3 +1,5 @@
+import type { Lang } from '@/lib/i18n'
+
 export interface Subject {
   id: string
   displayName: string
@@ -13,9 +15,41 @@ export interface Flashcard {
   difficulty: Difficulty
 }
 
+export type ModelProvider = 'OPENAI' | 'ANTHROPIC'
+
+export interface ChatSession {
+  id: string
+  /** null until the first message is sent - the server derives the title from it. */
+  title: string | null
+  subjectId: string
+  lang: Lang
+  provider: ModelProvider
+  createdAt: string
+}
+
+export interface ChatMessageResponse {
+  id: string
+  role: 'USER' | 'ASSISTANT'
+  content: string
+  createdAt: string
+}
+
+/** Payload of the SSE `done` event, which fires once just before the stream closes. */
+export interface ChatDone {
+  messageId: string
+  inputTokens: number | null
+  outputTokens: number | null
+  latencyMs: number
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  id?: string
+  /** Only live replies carry usage - the backend doesn't store it per message. */
+  usage?: ChatDone
+  /** The stream ended without `done`, so the reply is incomplete and retryable. */
+  failed?: boolean
 }
 
 export interface ApiError {

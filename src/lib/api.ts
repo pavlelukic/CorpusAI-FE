@@ -12,6 +12,17 @@ interface ApiFetchOptions {
   skipAuthRedirect?: boolean
 }
 
+/**
+ * Any 401 means the token is dead. Shared with the SSE stream, which bypasses apiFetch.
+ * Returns the error to throw so nothing proceeds while the redirect happens.
+ */
+export function clearAuthAndRedirect(): ApiError {
+  clearToken()
+  clearCachedUser()
+  window.location.assign('/login')
+  return { error: 'UNAUTHORIZED', message: 'Session expired' }
+}
+
 export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
@@ -33,11 +44,7 @@ export async function apiFetch<T>(
   })
 
   if (response.status === 401 && !options?.skipAuthRedirect) {
-    clearToken()
-    clearCachedUser()
-    window.location.assign('/login')
-    // Reject the caller's promise so nothing proceeds while the redirect happens.
-    throw { error: 'UNAUTHORIZED', message: 'Session expired' } satisfies ApiError
+    throw clearAuthAndRedirect()
   }
 
   if (!response.ok) {
