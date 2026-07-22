@@ -17,6 +17,21 @@ export interface Flashcard {
 
 export type ModelProvider = 'OPENAI' | 'ANTHROPIC'
 
+/** A row in the history list - the same set without its cards. */
+export interface FlashcardSetSummary {
+  setId: string
+  subjectId: string
+  /** null when the set covers the whole subject rather than one topic. */
+  topic: string | null
+  lang: Lang
+  provider: ModelProvider
+  createdAt: string
+}
+
+export interface FlashcardSet extends FlashcardSetSummary {
+  cards: Flashcard[]
+}
+
 export interface ChatSession {
   id: string
   /** null until the first message is sent - the server derives the title from it. */
