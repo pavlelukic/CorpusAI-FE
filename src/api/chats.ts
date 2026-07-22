@@ -57,6 +57,9 @@ interface StreamCallbacks {
   onError: (err: ApiError) => void
 }
 
+/** How long the stream may go without an event before it counts as dead. */
+const IDLE_TIMEOUT_MS = 60_000
+
 /**
  * Streams one turn of the conversation. Failures before the first token (403/404) arrive as a
  * normal JSON error body; after that the stream simply stops, so a close without a `done` event
@@ -70,6 +73,23 @@ export function streamMessage(
   const controller = new AbortController()
   const token = getToken()
   let sawDone = false
+  let idleTimer: number | undefined
+
+  function stopIdleTimer() {
+    window.clearTimeout(idleTimer)
+    idleTimer = undefined
+  }
+
+  // A connection can be left hanging with the answer already delivered but no `done` - waiting
+  // out the server's 300s would leave the cursor blinking on a reply that is never coming.
+  function restartIdleTimer() {
+    stopIdleTimer()
+    idleTimer = window.setTimeout(() => {
+      if (sawDone) return
+      onError({ error: STREAM_INCOMPLETE, message: 'The reply stopped arriving' })
+      controller.abort()
+    }, IDLE_TIMEOUT_MS)
+  }
 
   fetchEventSource(`${API_BASE_URL}/api/chats/${sessionId}/messages`, {
     method: 'POST',
@@ -83,7 +103,10 @@ export function streamMessage(
     // would persist the user message twice and start a second generation.
     openWhenHidden: true,
     async onopen(response) {
-      if (response.ok) return
+      if (response.ok) {
+        restartIdleTimer()
+        return
+      }
       if (response.status === 401) throw clearAuthAndRedirect()
       throw await response.json().catch(() => ({
         error: 'SERVER_ERROR',
@@ -91,21 +114,25 @@ export function streamMessage(
       }))
     },
     onmessage(event) {
+      restartIdleTimer()
       if (event.event === 'token') {
         const chunk: ChatChunkResponse = JSON.parse(event.data)
         onToken(chunk.token)
       } else if (event.event === 'done') {
         sawDone = true
+        stopIdleTimer()
         onDone(JSON.parse(event.data) as ChatDone)
       }
     },
     onclose() {
+      stopIdleTimer()
       // The server closes immediately after `done`; closing without it means the turn died.
       if (!sawDone) {
         onError({ error: STREAM_INCOMPLETE, message: 'The reply did not finish streaming' })
       }
     },
     onerror(err) {
+      stopIdleTimer()
       if (!controller.signal.aborted) onError(toApiError(err))
       // Rethrowing stops the library's automatic reconnect, which would re-send the message.
       throw err
@@ -114,5 +141,8 @@ export function streamMessage(
     // Reported through onError above; this only silences the rejection the throw creates.
   })
 
-  return () => controller.abort()
+  return () => {
+    stopIdleTimer()
+    controller.abort()
+  }
 }

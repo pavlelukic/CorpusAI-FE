@@ -1,14 +1,22 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useLang } from '@/lib/LangContext'
+import { CHAT_MODEL } from '@/lib/chatMeta'
+import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
-import type { ChatMessage as ChatMessageType } from '@/types'
+import type { ChatMessage as ChatMessageType, ModelProvider } from '@/types'
 
 interface ChatMessageProps {
   message: ChatMessageType
   isStreaming?: boolean
+  /** Decides the model named in the stats line - the done event doesn't carry it. */
+  provider?: ModelProvider
+  onRetry?: () => void
 }
 
-function ChatMessage({ message, isStreaming = false }: ChatMessageProps) {
+function ChatMessage({ message, isStreaming = false, provider, onRetry }: ChatMessageProps) {
+  const { lang } = useLang()
+
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
@@ -20,6 +28,12 @@ function ChatMessage({ message, isStreaming = false }: ChatMessageProps) {
   }
 
   const hasContent = message.content.length > 0
+  const usage = message.usage
+  // Both token counts are nullable - a provider that reports no usage still gets a stats line.
+  const tokens =
+    usage && (usage.inputTokens !== null || usage.outputTokens !== null)
+      ? (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0)
+      : null
 
   return (
     <div className="flex justify-start">
@@ -54,6 +68,36 @@ function ChatMessage({ message, isStreaming = false }: ChatMessageProps) {
           <div className={cn('flex items-center', hasContent ? 'mt-1' : 'h-6')}>
             <span aria-hidden="true" className="size-2 animate-blink rounded-full bg-primary" />
           </div>
+        )}
+        {message.failed && (
+          <div
+            className={cn(
+              'flex flex-wrap items-center gap-x-2 gap-y-1 pb-2 text-[13px] text-muted-foreground',
+              hasContent ? 'mt-1' : '',
+            )}
+          >
+            <span>{t('chat.streamFailed', lang)}</span>
+            {onRetry && (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="font-semibold text-primary underline-offset-2 hover:underline"
+              >
+                {t('error.retry', lang)}
+              </button>
+            )}
+          </div>
+        )}
+        {usage && !isStreaming && !message.failed && (
+          <p className="mt-1 pb-2 text-[12px] text-muted-foreground">
+            {[
+              tokens === null ? null : t('chat.stats.tokens', lang, { count: String(tokens) }),
+              `${(usage.latencyMs / 1000).toFixed(1)}s`,
+              provider ? CHAT_MODEL[provider] : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
         )}
       </div>
     </div>

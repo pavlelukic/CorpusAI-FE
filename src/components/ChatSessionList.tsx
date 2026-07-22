@@ -32,7 +32,7 @@ interface ChatSessionListProps {
  * AlertDialog has to live inside the parent overlay's tree to not dismiss it.
  */
 function ChatSessionList({ subjectId, activeSessionId, onSelect }: ChatSessionListProps) {
-  const { lang } = useLang()
+  const { lang, setLang } = useLang()
   const { sessions, isLoading, error, refetch, deleteSession, deletingId } =
     useChatSessions(subjectId)
   const [deleteTarget, setDeleteTarget] = useState<ChatSession | null>(null)
@@ -84,7 +84,12 @@ function ChatSessionList({ subjectId, activeSessionId, onSelect }: ChatSessionLi
           >
             <Link
               to={`/chat/${session.id}`}
-              onClick={onSelect}
+              onClick={() => {
+                // Adopt the session's language before the route changes, so the conversation
+                // never paints a frame in the language you're leaving behind.
+                setLang(session.lang)
+                onSelect?.()
+              }}
               className="min-w-0 flex-1 px-4 py-3.5"
             >
               <span
