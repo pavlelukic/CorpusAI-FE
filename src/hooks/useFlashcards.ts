@@ -3,12 +3,25 @@ import { toast } from 'sonner'
 import {
   deleteSet,
   generateFlashcards,
+  getSet,
   listSets,
   type GenerateFlashcardsRequest,
 } from '@/api/flashcards'
 import { useLang } from '@/lib/LangContext'
 import { t } from '@/lib/i18n'
 import type { ApiError, FlashcardSet, FlashcardSetSummary } from '@/types'
+
+/**
+ * One saved set. Generating seeds this key with the response, so arriving straight from the
+ * setup form costs no request; a direct visit or a refresh fetches it.
+ */
+export function useFlashcardSet(setId: string) {
+  return useQuery<FlashcardSet, ApiError>({
+    queryKey: ['flashcardSet', setId],
+    queryFn: () => getSet(setId),
+    enabled: setId.length > 0,
+  })
+}
 
 export function useFlashcards(subjectId: string) {
   const { lang } = useLang()

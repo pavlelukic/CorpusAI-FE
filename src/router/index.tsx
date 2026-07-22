@@ -3,7 +3,7 @@ import HomePage from '@/pages/HomePage'
 import ChatSessionsPage from '@/pages/ChatSessionsPage'
 import ConversationPage from '@/pages/ConversationPage'
 import FlashcardsPage from '@/pages/FlashcardsPage'
-import QuizPage from '@/pages/QuizPage'
+import FlashcardSetPage from '@/pages/FlashcardSetPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -29,7 +29,7 @@ export const router = createBrowserRouter([
           { path: '/subjects/:subjectId/chat', element: <ChatSessionsPage /> },
           { path: '/chat/:sessionId', element: <ConversationPage /> },
           { path: '/subjects/:subjectId/flashcards', element: <FlashcardsPage /> },
-          { path: '/quiz/:subjectId', element: <QuizPage /> },
+          { path: '/flashcards/:setId', element: <FlashcardSetPage /> },
           {
             element: <RequireAdmin />,
             children: [
