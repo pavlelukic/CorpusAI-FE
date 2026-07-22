@@ -19,10 +19,14 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const token = getToken()
 
+  // Let the browser set Content-Type (with the multipart boundary) for FormData bodies;
+  // forcing application/json here would corrupt document uploads.
+  const isFormData = init?.body instanceof FormData
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init?.headers,
     },
@@ -39,6 +43,11 @@ export async function apiFetch<T>(
   if (!response.ok) {
     const body: ApiError = await response.json()
     throw body
+  }
+
+  // 204 (and other empty bodies) have nothing to parse — grant/revoke/archive/delete.
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return undefined as T
   }
 
   return response.json()

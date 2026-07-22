@@ -15,6 +15,8 @@ interface AppHeaderProps {
   langLockedHint?: string
   /** Chat/Quiz use a shorter, full-width, non-sticky header than Home's. */
   compact?: boolean
+  /** Width/padding of the logo-mode bar; the admin shell overrides it to match its wider content. */
+  containerClassName?: string
 }
 
 function AppHeader({
@@ -24,6 +26,7 @@ function AppHeader({
   langLocked = false,
   langLockedHint,
   compact = false,
+  containerClassName = 'max-w-[1120px] px-7',
 }: AppHeaderProps) {
   const controlSize = compact ? 'size-[34px]' : 'size-9'
 
@@ -62,7 +65,7 @@ function AppHeader({
   if (!title) {
     return (
       <nav className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md backdrop-saturate-150">
-        <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-7">
+        <div className={cn('mx-auto flex h-16 items-center justify-between', containerClassName)}>
           {start}
           {controls}
         </div>

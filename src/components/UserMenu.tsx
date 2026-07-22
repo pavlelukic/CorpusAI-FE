@@ -1,5 +1,5 @@
-import { LogOut } from 'lucide-react'
-import { useNavigate } from 'react-router'
+import { LogOut, Shield } from 'lucide-react'
+import { Link, useNavigate } from 'react-router'
 import { useAuth } from '@/lib/AuthContext'
 import { useLang } from '@/lib/LangContext'
 import { t } from '@/lib/i18n'
@@ -65,6 +65,14 @@ function UserMenu({ compact = false }: UserMenuProps) {
           </span>
         </div>
         <DropdownMenuSeparator />
+        {isAdmin && (
+          <DropdownMenuItem asChild>
+            <Link to="/admin">
+              <Shield />
+              {t('admin.link', lang)}
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut />
           {t('auth.logout', lang)}

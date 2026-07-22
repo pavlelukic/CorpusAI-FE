@@ -36,3 +36,36 @@ export interface AuthResponse {
   token: string
   user: User
 }
+
+export interface AdminUser {
+  id: string
+  email: string
+  displayName: string
+  role: Role
+  subjectIds: string[]
+}
+
+export interface AdminSubject {
+  id: string
+  displayName: string
+  displayNameSr: string
+  systemPrompt: string | null
+  archived: boolean
+  createdAt: string
+}
+
+export interface SubjectRequest {
+  displayName: string
+  displayNameSr: string
+  systemPrompt?: string | null
+}
+
+export type DocumentStatus = 'PENDING' | 'INGESTING' | 'READY' | 'FAILED'
+
+export interface DocumentResponse {
+  id: string
+  fileName: string
+  status: DocumentStatus
+  uploadedAt: string
+  errorMessage: string | null
+}
