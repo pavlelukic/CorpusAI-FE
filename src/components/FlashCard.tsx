@@ -18,9 +18,9 @@ const DIFFICULTY_COLORS: Record<Difficulty, string> = {
 }
 
 const DIFFICULTY_KEYS: Record<Difficulty, TranslationKey> = {
-  EASY: 'quiz.difficulty.EASY',
-  MEDIUM: 'quiz.difficulty.MEDIUM',
-  HARD: 'quiz.difficulty.HARD',
+  EASY: 'flashcards.difficulty.EASY',
+  MEDIUM: 'flashcards.difficulty.MEDIUM',
+  HARD: 'flashcards.difficulty.HARD',
 }
 
 function FlashCard({ card }: FlashCardProps) {
@@ -48,14 +48,14 @@ function FlashCard({ card }: FlashCardProps) {
         {/* Front */}
         <div className="absolute inset-0 flex flex-col items-center rounded-[20px] border border-border bg-card p-8 text-center shadow-[0_2px_6px_rgba(60,40,25,0.06),0_18px_40px_rgba(60,40,25,0.08)] [backface-visibility:hidden] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
           <span className="self-start text-[11px] font-bold tracking-[0.14em] text-muted-foreground uppercase">
-            {t('quiz.question', lang)}
+            {t('flashcards.question', lang)}
           </span>
           <div className="flex flex-1 justify-center overflow-y-auto py-3 [align-items:safe_center]">
             <p className="font-heading text-[25px] leading-[1.35] font-medium text-foreground">
               {card.question}
             </p>
           </div>
-          <span className="text-[13px] text-muted-foreground">{t('quiz.revealHint', lang)}</span>
+          <span className="text-[13px] text-muted-foreground">{t('flashcards.revealHint', lang)}</span>
         </div>
 
         {/* Back */}
@@ -64,7 +64,7 @@ function FlashCard({ card }: FlashCardProps) {
           style={{ transform: 'rotateY(180deg)' }}
         >
           <span className="self-start text-[11px] font-bold tracking-[0.14em] text-muted-foreground uppercase">
-            {t('quiz.answer', lang)}
+            {t('flashcards.answer', lang)}
           </span>
           <div className="flex-1 overflow-y-auto px-0.5 pt-3.5 pb-2">
             <ReactMarkdown
@@ -90,14 +90,18 @@ function FlashCard({ card }: FlashCardProps) {
           </div>
           <div className="flex items-center justify-between pt-2.5">
             <span className="text-xs text-muted-foreground">
-              {card.sourceHint && t('quiz.source', lang, { hint: card.sourceHint })}
+              {card.sourceHint && t('flashcards.source', lang, { hint: card.sourceHint })}
             </span>
             <Badge
               variant="outline"
               style={badgeStyle}
-              className="rounded-full border-transparent px-2.5 py-[5px] text-[11px] font-bold tracking-[0.08em] uppercase"
+              className="h-[22px] rounded-full border-transparent px-2.5 text-[11px] font-bold tracking-[0.08em] uppercase"
             >
-              {t(DIFFICULTY_KEYS[card.difficulty], lang)}
+              {/* Letter-spacing trails the last glyph, and all-caps leaves the line box's
+                  descender space empty below - both are corrected by hand here. */}
+              <span className="-mr-[0.08em] translate-y-[1px]">
+                {t(DIFFICULTY_KEYS[card.difficulty], lang)}
+              </span>
             </Badge>
           </div>
         </div>
