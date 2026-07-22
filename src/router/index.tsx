@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router'
 import HomePage from '@/pages/HomePage'
 import ChatSessionsPage from '@/pages/ChatSessionsPage'
 import ConversationPage from '@/pages/ConversationPage'
+import FlashcardsPage from '@/pages/FlashcardsPage'
 import QuizPage from '@/pages/QuizPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
           { path: '/', element: <HomePage /> },
           { path: '/subjects/:subjectId/chat', element: <ChatSessionsPage /> },
           { path: '/chat/:sessionId', element: <ConversationPage /> },
+          { path: '/subjects/:subjectId/flashcards', element: <FlashcardsPage /> },
           { path: '/quiz/:subjectId', element: <QuizPage /> },
           {
             element: <RequireAdmin />,

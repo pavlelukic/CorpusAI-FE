@@ -79,10 +79,10 @@ function NewChatCard({ subjectId }: { subjectId: string }) {
       <div className="mt-5 flex flex-col gap-3.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-sm font-medium text-foreground">
-            {t('chat.sessions.language', lang)}
+            {t('common.language', lang)}
           </span>
           <SegmentedControl
-            aria-label={t('chat.sessions.language', lang)}
+            aria-label={t('common.language', lang)}
             value={sessionLang}
             onChange={setSessionLang}
             disabled={isCreating}
@@ -94,10 +94,10 @@ function NewChatCard({ subjectId }: { subjectId: string }) {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-sm font-medium text-foreground">
-            {t('chat.sessions.provider', lang)}
+            {t('common.provider', lang)}
           </span>
           <SegmentedControl
-            aria-label={t('chat.sessions.provider', lang)}
+            aria-label={t('common.provider', lang)}
             value={provider}
             onChange={setProvider}
             disabled={isCreating}
