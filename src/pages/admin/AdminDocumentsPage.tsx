@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowLeft, Loader2, Trash2 } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { Link, useParams } from 'react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -43,11 +44,11 @@ const ALLOWED = ['.pdf', '.md', '.txt']
 const cardShadow =
   'shadow-[0_2px_6px_rgba(60,40,25,0.06),0_18px_40px_rgba(60,40,25,0.08)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)]'
 
-const statusStyles: Record<DocumentResponse['status'], string> = {
-  PENDING: 'bg-[#b08a2e]/12 text-[#b08a2e] animate-pulse',
-  INGESTING: 'bg-[#b08a2e]/12 text-[#b08a2e] animate-pulse',
-  READY: 'bg-[#3f8f5e]/12 text-[#3f8f5e]',
-  FAILED: 'bg-[#b4503f]/12 text-[#b4503f]',
+const STATUS_COLOR: Record<DocumentResponse['status'], string> = {
+  PENDING: '#b08a2e',
+  INGESTING: '#b08a2e',
+  READY: '#3f8f5e',
+  FAILED: '#b4503f',
 }
 
 function formatDate(iso: string, lang: Lang): string {
@@ -62,21 +63,29 @@ function formatDate(iso: string, lang: Lang): string {
 
 function StatusPill({ doc }: { doc: DocumentResponse }) {
   const { lang } = useLang()
-  const label = t(`admin.documents.status.${doc.status}`, lang)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+  const color = STATUS_COLOR[doc.status]
+  const failedWithMessage = doc.status === 'FAILED' && Boolean(doc.errorMessage)
+
   const pill = (
     <span
+      style={{
+        backgroundColor: `color-mix(in oklab, ${color}, transparent 86%)`,
+        color: isDark ? `color-mix(in oklab, ${color}, white 30%)` : color,
+      }}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium',
-        statusStyles[doc.status],
-        doc.status === 'FAILED' && doc.errorMessage && 'cursor-help underline decoration-dotted underline-offset-2',
+        doc.status === 'PENDING' && 'animate-pulse',
+        failedWithMessage && 'cursor-help underline decoration-dotted underline-offset-2',
       )}
     >
       {doc.status === 'INGESTING' && <Loader2 className="size-3 animate-spin" />}
-      {label}
+      {t(`admin.documents.status.${doc.status}`, lang)}
     </span>
   )
 
-  if (doc.status === 'FAILED' && doc.errorMessage) {
+  if (failedWithMessage) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>{pill}</TooltipTrigger>
