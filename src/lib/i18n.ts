@@ -116,6 +116,34 @@ const en = {
   'admin.subjects.archiveConfirm.body':
     'Archiving removes "{{name}}" from students and revokes their access, but keeps its documents and embeddings. This cannot be undone here.',
   'admin.subjects.archiveConfirm.confirm': 'Archive',
+  'admin.documents.subtitle': 'Upload and manage the material for this subject.',
+  'admin.documents.back': 'Back to subjects',
+  'admin.documents.upload.title': 'Drop a file here',
+  'admin.documents.upload.browse': 'or click to browse',
+  'admin.documents.upload.hint': '.pdf, .md, .txt - max 50 MB',
+  'admin.documents.upload.uploading': 'Uploading…',
+  'admin.documents.upload.tooLarge': 'The file size is over the 50 MB limit.',
+  'admin.documents.upload.unsupported': 'Unsupported file type. Use .pdf, .md, or .txt.',
+  'admin.documents.upload.success': 'Document uploaded',
+  'admin.documents.col.name': 'File',
+  'admin.documents.col.status': 'Status',
+  'admin.documents.col.uploaded': 'Uploaded',
+  'admin.documents.col.actions': 'Actions',
+  'admin.documents.status.PENDING': 'Pending',
+  'admin.documents.status.INGESTING': 'Ingesting',
+  'admin.documents.status.READY': 'Ready',
+  'admin.documents.status.FAILED': 'Failed',
+  'admin.documents.empty': 'No documents yet - upload material to enable chat, flashcards and quizzes.',
+  'admin.documents.delete': 'Delete',
+  'admin.documents.deleteConfirm.title': 'Delete this document?',
+  'admin.documents.deleteConfirm.body':
+    'This removes "{{name}}", including the file and its embeddings. This cannot be undone.',
+  'admin.documents.deleteConfirm.confirm': 'Delete',
+  'admin.documents.deleteSuccess': 'Document deleted',
+  'admin.documents.replaceConfirm.title': 'Replace existing document?',
+  'admin.documents.replaceConfirm.body':
+    'A document named "{{name}}" already exists. Re-uploading will replace it and re-index its content. Continue?',
+  'admin.documents.replaceConfirm.confirm': 'Replace',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -235,6 +263,35 @@ const sr: Record<TranslationKey, string> = {
   'admin.subjects.archiveConfirm.body':
     'Arhiviranje uklanja "{{name}}" od studenata i oduzima im pristup, ali zadržava dokumente i embedinge. Ovo se ne može poništiti ovde.',
   'admin.subjects.archiveConfirm.confirm': 'Arhiviraj',
+  'admin.documents.subtitle': 'Postavite nova dokumenta i upravljajte gradivom ovog predmeta.',
+  'admin.documents.back': 'Nazad na predmete',
+  'admin.documents.upload.title': 'Prevucite datoteku ovde',
+  'admin.documents.upload.browse': 'ili kliknite da izaberete',
+  'admin.documents.upload.hint': '.pdf, .md, .txt - najviše 50 MB',
+  'admin.documents.upload.uploading': 'Postavljanje…',
+  'admin.documents.upload.tooLarge': 'Datoteka prelazi ograničenje od 50 MB.',
+  'admin.documents.upload.unsupported': 'Nepodržan tip datoteke. Koristite .pdf, .md ili .txt.',
+  'admin.documents.upload.success': 'Dokument je postavljen',
+  'admin.documents.col.name': 'Datoteka',
+  'admin.documents.col.status': 'Status',
+  'admin.documents.col.uploaded': 'Postavljeno',
+  'admin.documents.col.actions': 'Akcije',
+  'admin.documents.status.PENDING': 'Na čekanju',
+  'admin.documents.status.INGESTING': 'Obrada',
+  'admin.documents.status.READY': 'Spremno',
+  'admin.documents.status.FAILED': 'Neuspešno',
+  'admin.documents.empty':
+    'Još uvek nema dokumenata - postavite gradivo da omogućite čet, kartice i kvizove.',
+  'admin.documents.delete': 'Obriši',
+  'admin.documents.deleteConfirm.title': 'Obrisati ovaj dokument?',
+  'admin.documents.deleteConfirm.body':
+    'Ovo uklanja "{{name}}", uključujući datoteku i sve njenje embedinge. Ovo se ne može poništiti.',
+  'admin.documents.deleteConfirm.confirm': 'Obriši',
+  'admin.documents.deleteSuccess': 'Dokument je obrisan',
+  'admin.documents.replaceConfirm.title': 'Zameniti postojeći dokument?',
+  'admin.documents.replaceConfirm.body':
+    'Dokument pod nazivom "{{name}}" već postoji. Ponovno postavljanje će ga zameniti i ponovo indeksirati sadržaj. Nastaviti?',
+  'admin.documents.replaceConfirm.confirm': 'Zameni',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
