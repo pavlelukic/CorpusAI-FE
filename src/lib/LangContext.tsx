@@ -6,6 +6,8 @@ const STORAGE_KEY = 'corpusai_lang'
 interface LangContextValue {
   lang: Lang
   toggleLang: () => void
+  /** Used when a language-locked surface (a chat session) dictates the interface language. */
+  setLang: (next: Lang) => void
 }
 
 const LangContext = createContext<LangContextValue | null>(null)
@@ -23,7 +25,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   const toggleLang = () => setLang((prev) => (prev === 'en' ? 'sr' : 'en'))
 
-  return <LangContext.Provider value={{ lang, toggleLang }}>{children}</LangContext.Provider>
+  return (
+    <LangContext.Provider value={{ lang, toggleLang, setLang }}>{children}</LangContext.Provider>
+  )
 }
 
 export function useLang(): LangContextValue {
