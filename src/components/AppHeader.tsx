@@ -11,6 +11,8 @@ interface AppHeaderProps {
   title?: ReactNode
   /** Extra control rendered after the dark-mode toggle (e.g. "New Chat"). */
   trailingAction?: ReactNode
+  /** Extra control rendered beside the back arrow (e.g. the chat history drawer trigger). */
+  leadingAction?: ReactNode
   langLocked?: boolean
   langLockedHint?: string
   /** Chat/Quiz use a shorter, full-width, non-sticky header than Home's. */
@@ -23,6 +25,7 @@ function AppHeader({
   backTo,
   title,
   trailingAction,
+  leadingAction,
   langLocked = false,
   langLockedHint,
   compact = false,
@@ -31,16 +34,19 @@ function AppHeader({
   const controlSize = compact ? 'size-[34px]' : 'size-9'
 
   const start = backTo ? (
-    <Link
-      to={backTo}
-      aria-label="Back"
-      className={cn(
-        'flex items-center justify-center rounded-[9px] border border-border bg-card text-foreground',
-        controlSize,
-      )}
-    >
-      ←
-    </Link>
+    <div className="flex items-center gap-2">
+      <Link
+        to={backTo}
+        aria-label="Back"
+        className={cn(
+          'flex items-center justify-center rounded-[9px] border border-border bg-card text-foreground',
+          controlSize,
+        )}
+      >
+        ←
+      </Link>
+      {leadingAction}
+    </div>
   ) : (
     <div className="flex items-center gap-2.5">
       <span className="inline-block size-[9px] shrink-0 rounded-full bg-primary" />

@@ -25,13 +25,19 @@ interface ChatSessionListProps {
   activeSessionId?: string
   /** Lets a container (the history drawer) close itself when a row is picked. */
   onSelect?: () => void
+  onDeleted?: (sessionId: string) => void
 }
 
 /**
  * Owns its own delete confirm so the whole list can be dropped into a drawer - a nested
  * AlertDialog has to live inside the parent overlay's tree to not dismiss it.
  */
-function ChatSessionList({ subjectId, activeSessionId, onSelect }: ChatSessionListProps) {
+function ChatSessionList({
+  subjectId,
+  activeSessionId,
+  onSelect,
+  onDeleted,
+}: ChatSessionListProps) {
   const { lang, setLang } = useLang()
   const { sessions, isLoading, error, refetch, deleteSession, deletingId } =
     useChatSessions(subjectId)
@@ -136,7 +142,10 @@ function ChatSessionList({ subjectId, activeSessionId, onSelect }: ChatSessionLi
             <Button
               variant="destructive"
               onClick={() => {
-                if (deleteTarget) deleteSession(deleteTarget.id)
+                if (deleteTarget) {
+                  const { id } = deleteTarget
+                  deleteSession(id, { onSuccess: () => onDeleted?.(id) })
+                }
                 setDeleteTarget(null)
               }}
             >

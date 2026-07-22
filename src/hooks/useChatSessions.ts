@@ -73,7 +73,6 @@ export function useChatSessions(subjectId: string) {
         prev?.filter((session) => session.id !== sessionId),
       )
       queryClient.removeQueries({ queryKey: ['chatMessages', sessionId] })
-      queryClient.removeQueries({ queryKey: ['chatUsage', sessionId] })
       toast.success(t('chat.sessions.deleteSuccess', lang))
     },
     onError: (err) => {

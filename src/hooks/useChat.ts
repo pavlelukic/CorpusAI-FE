@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { getMessages, streamMessage, STREAM_INCOMPLETE } from '@/api/chats'
 import { useLang } from '@/lib/LangContext'
 import { t } from '@/lib/i18n'
-import type { ApiError, ChatDone, ChatMessage, ChatMessageResponse } from '@/types'
+import type { ApiError, ChatMessage, ChatMessageResponse } from '@/types'
 
 export function useChat(sessionId: string) {
   const { lang } = useLang()
@@ -27,13 +27,6 @@ export function useChat(sessionId: string) {
   // The turn in flight. Completed turns move into the query cache, so this is empty at rest.
   const [live, setLive] = useState<ChatMessage[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
-
-  // Usage lives in the query cache rather than component state so it survives leaving the
-  // conversation and coming back. Keyed by the id the `done` event reports, which is the id the
-  // server returns for that message, so it also survives a transcript refetch. A reload starts
-  // empty on purpose - the backend stores no usage per message, so older replies have none.
-  const usageKey = ['chatUsage', sessionId]
-  const usageById = queryClient.getQueryData<Record<string, ChatDone>>(usageKey) ?? {}
 
   const cancelRef = useRef<(() => void) | null>(null)
   const streamedRef = useRef('')
@@ -69,19 +62,36 @@ export function useChat(sessionId: string) {
       onDone: (done) => {
         cancelRef.current = null
         setIsStreaming(false)
-        queryClient.setQueryData<Record<string, ChatDone>>(usageKey, (prev) => ({
-          ...prev,
-          [done.messageId]: done,
-        }))
 
+        // Write the finished turn in from the `done` payload so the stats appear immediately,
+        // then refetch: the server holds the real message ids and the model that actually ran,
+        // neither of which the stream tells us.
         const now = new Date().toISOString()
         queryClient.setQueryData<ChatMessageResponse[]>(transcriptKey, (cached) => [
           ...(cached ?? []),
-          // The user message's real id is never sent to us; a refetch replaces this one.
-          { id: `local-${done.messageId}`, role: 'USER', content: text, createdAt: now },
-          { id: done.messageId, role: 'ASSISTANT', content: streamedRef.current, createdAt: now },
+          {
+            id: `local-${done.messageId}`,
+            role: 'USER',
+            content: text,
+            createdAt: now,
+            inputTokens: null,
+            outputTokens: null,
+            latencyMs: null,
+            model: null,
+          },
+          {
+            id: done.messageId,
+            role: 'ASSISTANT',
+            content: streamedRef.current,
+            createdAt: now,
+            inputTokens: done.inputTokens,
+            outputTokens: done.outputTokens,
+            latencyMs: done.latencyMs,
+            model: null,
+          },
         ])
         setLive([])
+        queryClient.invalidateQueries({ queryKey: transcriptKey })
         // The server titles a session from its first message, so the list is now stale.
         queryClient.invalidateQueries({ queryKey: ['chats'] })
       },
@@ -120,7 +130,17 @@ export function useChat(sessionId: string) {
       id: message.id,
       role: message.role === 'USER' ? ('user' as const) : ('assistant' as const),
       content: message.content,
-      usage: usageById[message.id],
+      // latencyMs is the presence signal: the token counts can be null on their own when a
+      // provider reports none, but a recorded turn always has a latency.
+      usage:
+        message.latencyMs === null
+          ? undefined
+          : {
+              inputTokens: message.inputTokens,
+              outputTokens: message.outputTokens,
+              latencyMs: message.latencyMs,
+              model: message.model,
+            },
     })),
     ...live,
   ]

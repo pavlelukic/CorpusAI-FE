@@ -1,20 +1,17 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useLang } from '@/lib/LangContext'
-import { CHAT_MODEL } from '@/lib/chatMeta'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
-import type { ChatMessage as ChatMessageType, ModelProvider } from '@/types'
+import type { ChatMessage as ChatMessageType } from '@/types'
 
 interface ChatMessageProps {
   message: ChatMessageType
   isStreaming?: boolean
-  /** Decides the model named in the stats line - the done event doesn't carry it. */
-  provider?: ModelProvider
   onRetry?: () => void
 }
 
-function ChatMessage({ message, isStreaming = false, provider, onRetry }: ChatMessageProps) {
+function ChatMessage({ message, isStreaming = false, onRetry }: ChatMessageProps) {
   const { lang } = useLang()
 
   if (message.role === 'user') {
@@ -93,7 +90,7 @@ function ChatMessage({ message, isStreaming = false, provider, onRetry }: ChatMe
             {[
               tokens === null ? null : t('chat.stats.tokens', lang, { count: String(tokens) }),
               `${(usage.latencyMs / 1000).toFixed(1)}s`,
-              provider ? CHAT_MODEL[provider] : null,
+              usage.model,
             ]
               .filter(Boolean)
               .join(' · ')}

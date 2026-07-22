@@ -32,6 +32,21 @@ export interface ChatMessageResponse {
   role: 'USER' | 'ASSISTANT'
   content: string
   createdAt: string
+  // Null on user messages, on replies stored before the backend recorded usage, and when the
+  // usage row failed to write. Token counts are also null on their own when a provider reports
+  // none, so each field is guarded separately.
+  inputTokens: number | null
+  outputTokens: number | null
+  latencyMs: number | null
+  model: string | null
+}
+
+/** What the stats line under a completed assistant reply renders. */
+export interface ChatUsage {
+  inputTokens: number | null
+  outputTokens: number | null
+  latencyMs: number
+  model: string | null
 }
 
 /** Payload of the SSE `done` event, which fires once just before the stream closes. */
@@ -46,8 +61,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   id?: string
-  /** Only live replies carry usage - the backend doesn't store it per message. */
-  usage?: ChatDone
+  usage?: ChatUsage
   /** The stream ended without `done`, so the reply is incomplete and retryable. */
   failed?: boolean
 }

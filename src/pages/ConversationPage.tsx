@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { Send } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useLang } from '@/lib/LangContext'
@@ -8,8 +8,9 @@ import { useChatSession } from '@/hooks/useChatSessions'
 import { useChat } from '@/hooks/useChat'
 import { PROVIDER_COLOR, PROVIDER_LABEL } from '@/lib/chatMeta'
 import { t, chatChips } from '@/lib/i18n'
-import type { ChatSession, ModelProvider } from '@/types'
+import type { ApiError, ChatSession, ModelProvider } from '@/types'
 import AppHeader from '@/components/AppHeader'
+import ChatHistorySheet from '@/components/ChatHistorySheet'
 import ChatMessage from '@/components/ChatMessage'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -44,6 +45,7 @@ function ProviderTag({ provider }: { provider: ModelProvider }) {
 
 function Conversation({ sessionId }: { sessionId: string }) {
   const { lang, setLang } = useLang()
+  const navigate = useNavigate()
   const session = useChatSession(sessionId)
   const { subjects } = useSubjects()
   const subject = subjects?.find((s) => s.id === session?.subjectId)
@@ -86,7 +88,7 @@ function Conversation({ sessionId }: { sessionId: string }) {
   }
 
   if (error) {
-    return <ConversationError code={error.error} />
+    return <ConversationError error={error} />
   }
 
   const sessionsPath = session ? `/subjects/${session.subjectId}/chat` : '/'
@@ -97,13 +99,33 @@ function Conversation({ sessionId }: { sessionId: string }) {
       <AppHeader
         backTo={sessionsPath}
         compact
-        title={<ConversationTitle session={session} subjectName={subject?.displayName} subjectNameSr={subject?.displayNameSr} fallback={sessionId} />}
-        langLocked={session !== null}
+        title={
+          <ConversationTitle
+            session={session}
+            subjectName={subject?.displayName}
+            subjectNameSr={subject?.displayNameSr}
+            fallback={sessionId}
+          />
+        }
+        leadingAction={
+          session && (
+            <ChatHistorySheet
+              subjectId={session.subjectId}
+              activeSessionId={sessionId}
+              sessionsPath={sessionsPath}
+              onActiveDeleted={() => navigate(sessionsPath)}
+            />
+          )
+        }
+        // Locked for the whole time a conversation is open, including while the session is still
+        // resolving - the toggle must not be briefly usable on a surface that owns its language.
+        langLocked
         langLockedHint={t('chat.langLocked', lang)}
         trailingAction={
+          // Below sm the header has no room for it, and the drawer carries the same action.
           <Link
             to={sessionsPath}
-            className="flex h-[34px] shrink-0 items-center rounded-[9px] border border-border bg-card px-3.5 text-[13px] font-semibold whitespace-nowrap text-foreground"
+            className="hidden h-[34px] shrink-0 items-center rounded-[9px] border border-border bg-card px-3.5 text-[13px] font-semibold whitespace-nowrap text-foreground sm:flex"
           >
             {t('chat.newChat', lang)}
           </Link>
@@ -122,7 +144,6 @@ function Conversation({ sessionId }: { sessionId: string }) {
               <ChatMessage
                 key={message.id ?? `live-${i}`}
                 message={message}
-                provider={session?.provider}
                 isStreaming={isStreaming && i === messages.length - 1}
                 onRetry={i === messages.length - 1 ? retry : undefined}
               />
@@ -135,7 +156,9 @@ function Conversation({ sessionId }: { sessionId: string }) {
               <span className="size-3 rounded-full bg-primary" />
             </div>
             <h2 className="font-heading text-[30px] leading-[1.2] font-medium tracking-[-0.01em] text-foreground">
-              {t('chat.emptyTitle', lang, { subject: subject?.displayName ?? '' })}
+              {t('chat.emptyTitle', lang, {
+                subject: subject?.displayName ?? session?.subjectId ?? '',
+              })}
             </h2>
             <p className="mt-3.5 mb-7 text-[15px] text-muted-foreground">
               {t('chat.emptyHint', lang)}
@@ -204,23 +227,43 @@ function ConversationTitle({ session, subjectName, subjectNameSr, fallback }: Co
   )
 }
 
-function ConversationError({ code }: { code: string }) {
+/**
+ * A session that isn't yours reads differently from one that never existed, and both read
+ * differently from the server being unreachable - which arrives with no error code at all.
+ */
+function ConversationError({ error }: { error: ApiError }) {
   const { lang } = useLang()
-  const forbidden = code === 'FORBIDDEN'
+  const known = error.error === 'FORBIDDEN' || error.error === 'NOT_FOUND'
+  const forbidden = error.error === 'FORBIDDEN'
+
+  const title = forbidden ? 'forbidden.title' : known ? 'chat.notFound.title' : 'error.boundaryTitle'
+  const subtitle = forbidden
+    ? 'chat.forbidden.subtitle'
+    : known
+      ? 'chat.notFound.subtitle'
+      : 'error.generic'
 
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
       <div className="mx-auto flex max-w-[440px] flex-col items-center px-6 pt-32 text-center">
         <h1 className="font-heading text-[34px] font-medium tracking-[-0.01em] text-foreground">
-          {t(forbidden ? 'forbidden.title' : 'chat.notFound.title', lang)}
+          {t(title, lang)}
         </h1>
-        <p className="mt-3 mb-8 text-[15px] text-muted-foreground">
-          {t(forbidden ? 'chat.forbidden.subtitle' : 'chat.notFound.subtitle', lang)}
-        </p>
-        <Button asChild size="lg" className="h-auto rounded-xl px-6 py-3.5 text-[15px]">
-          <Link to="/">{t('notFound.backHome', lang)}</Link>
-        </Button>
+        <p className="mt-3 mb-8 text-[15px] text-muted-foreground">{t(subtitle, lang)}</p>
+        {known ? (
+          <Button asChild size="lg" className="h-auto rounded-xl px-6 py-3.5 text-[15px]">
+            <Link to="/">{t('notFound.backHome', lang)}</Link>
+          </Button>
+        ) : (
+          <Button
+            size="lg"
+            className="h-auto rounded-xl px-6 py-3.5 text-[15px]"
+            onClick={() => window.location.reload()}
+          >
+            {t('error.reload', lang)}
+          </Button>
+        )}
       </div>
     </div>
   )
