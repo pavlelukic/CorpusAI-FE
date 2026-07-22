@@ -20,7 +20,7 @@ function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <AppHeader containerClassName="max-w-[1360px] px-6" />
       <div className="mx-auto w-full max-w-[1360px] px-6">
         <div className="py-3 md:hidden">
           <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
