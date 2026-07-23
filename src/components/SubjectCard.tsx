@@ -29,12 +29,8 @@ function SubjectCard({ subject }: SubjectCardProps) {
             <Button asChild size="lg" variant="outline" className="h-11 flex-1">
               <Link to={`/subjects/${subject.id}/flashcards`}>{t('nav.flashcards', lang)}</Link>
             </Button>
-            {/* Quizzes ships in the next section; shown in place so the card keeps its shape. */}
-            <Button size="lg" variant="outline" disabled className="h-11 flex-1 gap-1.5">
-              {t('nav.quizzes', lang)}
-              <span className="text-[10px] font-semibold tracking-[0.08em] uppercase opacity-70">
-                {t('nav.soon', lang)}
-              </span>
+            <Button asChild size="lg" variant="outline" className="h-11 flex-1">
+              <Link to={`/subjects/${subject.id}/quizzes`}>{t('nav.quizzes', lang)}</Link>
             </Button>
           </div>
         </div>

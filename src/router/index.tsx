@@ -4,6 +4,8 @@ import ChatSessionsPage from '@/pages/ChatSessionsPage'
 import ConversationPage from '@/pages/ConversationPage'
 import FlashcardsPage from '@/pages/FlashcardsPage'
 import FlashcardSetPage from '@/pages/FlashcardSetPage'
+import QuizzesPage from '@/pages/QuizzesPage'
+import QuizPage from '@/pages/QuizPage'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -30,6 +32,8 @@ export const router = createBrowserRouter([
           { path: '/chat/:sessionId', element: <ConversationPage /> },
           { path: '/subjects/:subjectId/flashcards', element: <FlashcardsPage /> },
           { path: '/flashcards/:setId', element: <FlashcardSetPage /> },
+          { path: '/subjects/:subjectId/quizzes', element: <QuizzesPage /> },
+          { path: '/quizzes/:quizId', element: <QuizPage /> },
           {
             element: <RequireAdmin />,
             children: [
