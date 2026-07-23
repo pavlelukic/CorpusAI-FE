@@ -1,18 +1,14 @@
 import { useState } from 'react'
-import { Loader2, Minus, Plus } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useLang } from '@/lib/LangContext'
 import { LANG_LABEL, PROVIDER_LABEL } from '@/lib/chatMeta'
 import { t, type Lang } from '@/lib/i18n'
-import { cn } from '@/lib/utils'
 import type { ApiError, ModelProvider } from '@/types'
 import type { GenerateFlashcardsRequest } from '@/api/flashcards'
+import CountSelector from '@/components/CountSelector'
 import SegmentedControl from '@/components/SegmentedControl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-const COUNT_PRESETS = [5, 10, 20]
-const MIN_COUNT = 1
-const MAX_COUNT = 20
 
 interface FlashcardSetupFormProps {
   onGenerate: (request: GenerateFlashcardsRequest) => void
@@ -74,49 +70,13 @@ function FlashcardSetupForm({ onGenerate, isGenerating, error }: FlashcardSetupF
       </div>
 
       <div className="mt-5">
-        <span className="mb-2 block text-[13px] font-semibold text-foreground">
-          {t('flashcards.count', lang)}
-        </span>
-        <div className="flex flex-wrap items-center gap-2.5">
-          {COUNT_PRESETS.map((preset) => (
-            <button
-              key={preset}
-              type="button"
-              onClick={() => setCount(preset)}
-              className={cn(
-                'h-10 w-14 rounded-[10px] text-[15px] font-semibold',
-                count === preset
-                  ? 'bg-primary text-primary-foreground'
-                  : 'border border-border bg-card text-foreground',
-              )}
-            >
-              {preset}
-            </button>
-          ))}
-          <div className="ml-auto flex h-10 items-center overflow-hidden rounded-[10px] border border-border">
-            <button
-              type="button"
-              aria-label={t('flashcards.countDecrease', lang)}
-              onClick={() => setCount((prev) => Math.max(MIN_COUNT, prev - 1))}
-              disabled={count <= MIN_COUNT}
-              className="flex h-full w-9 items-center justify-center text-muted-foreground disabled:opacity-40"
-            >
-              <Minus className="size-4" />
-            </button>
-            <span className="flex h-full w-10 items-center justify-center bg-primary text-[15px] font-semibold text-primary-foreground tabular-nums">
-              {count}
-            </span>
-            <button
-              type="button"
-              aria-label={t('flashcards.countIncrease', lang)}
-              onClick={() => setCount((prev) => Math.min(MAX_COUNT, prev + 1))}
-              disabled={count >= MAX_COUNT}
-              className="flex h-full w-9 items-center justify-center text-muted-foreground disabled:opacity-40"
-            >
-              <Plus className="size-4" />
-            </button>
-          </div>
-        </div>
+        <CountSelector
+          label={t('flashcards.count', lang)}
+          value={count}
+          onChange={setCount}
+          decreaseLabel={t('flashcards.countDecrease', lang)}
+          increaseLabel={t('flashcards.countIncrease', lang)}
+        />
       </div>
 
       <div className="mt-5 flex flex-col gap-3.5">

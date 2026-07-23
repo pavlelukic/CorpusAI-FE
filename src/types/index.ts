@@ -32,6 +32,75 @@ export interface FlashcardSet extends FlashcardSetSummary {
   cards: Flashcard[]
 }
 
+/** A question as the taker sees it: never carries the answer while the quiz is unsubmitted. */
+export interface QuizQuestion {
+  id: string
+  question: string
+  options: string[]
+}
+
+/** A row in the quiz history - branch on completedAt for its state (taking vs graded). */
+export interface QuizSummary {
+  quizId: string
+  subjectId: string
+  /** null when the quiz covers the whole subject rather than one topic. */
+  topic: string | null
+  lang: Lang
+  provider: ModelProvider
+  questionCount: number
+  /** null until submitted. */
+  score: number | null
+  /** null until submitted - the discriminator between the taking and results states. */
+  completedAt: string | null
+  createdAt: string
+}
+
+/**
+ * A detail question. The four grading fields are omitted from the JSON entirely while the quiz
+ * is unsubmitted (`@JsonInclude(NON_NULL)` on the server), so they are `undefined`, not `null` -
+ * never test `correctIndex != null` to decide state; branch on the quiz's `completedAt`.
+ */
+export interface QuizQuestionDetail extends QuizQuestion {
+  selectedIndex?: number
+  correct?: boolean
+  correctIndex?: number
+  explanation?: string
+}
+
+export interface QuizDetail extends QuizSummary {
+  questions: QuizQuestionDetail[]
+}
+
+/** The generate response: a fresh quiz, questions without answers, before any submit. */
+export interface Quiz {
+  quizId: string
+  subjectId: string
+  topic: string | null
+  lang: Lang
+  provider: ModelProvider
+  createdAt: string
+  questions: QuizQuestion[]
+}
+
+export interface QuizAnswer {
+  questionId: string
+  selectedIndex: number
+}
+
+export interface QuizSubmissionResult {
+  questionId: string
+  correct: boolean
+  correctIndex: number
+  explanation: string | null
+}
+
+/** Grading response. Note it does not echo the taker's own selections - merge those from state. */
+export interface QuizSubmissionResponse {
+  score: number
+  total: number
+  results: QuizSubmissionResult[]
+}
+
 export interface ChatSession {
   id: string
   /** null until the first message is sent - the server derives the title from it. */
