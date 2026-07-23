@@ -48,12 +48,12 @@ function AppHeader({
       {leadingAction}
     </div>
   ) : (
-    <div className="flex items-center gap-2.5">
+    <Link to="/" aria-label="CorpusAI home" className="flex items-center gap-2.5">
       <span className="inline-block size-[9px] shrink-0 rounded-full bg-primary" />
       <span className="text-[17px] leading-none font-semibold tracking-[-0.03em]">
         Corpus<span className="text-primary">AI</span>
       </span>
-    </div>
+    </Link>
   )
 
   const controls = (
