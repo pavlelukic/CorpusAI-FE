@@ -1,5 +1,14 @@
-import { apiFetch } from '@/lib/api'
-import type { AdminSubject, AdminUser, DocumentResponse, SubjectRequest } from '@/types'
+import { API_BASE_URL, apiFetch, clearAuthAndRedirect } from '@/lib/api'
+import { getToken } from '@/lib/auth'
+import type {
+  AdminSubject,
+  AdminUser,
+  ApiError,
+  DocumentResponse,
+  MetricsParams,
+  MetricsResponse,
+  SubjectRequest,
+} from '@/types'
 
 // Users & access grants
 
@@ -56,4 +65,44 @@ export function uploadDocument(subjectId: string, file: File): Promise<DocumentR
 
 export function deleteDocument(documentId: string): Promise<void> {
   return apiFetch<void>(`/api/admin/documents/${documentId}`, { method: 'DELETE' })
+}
+
+// Metrics
+
+function metricsQuery(params: MetricsParams): string {
+  const search = new URLSearchParams()
+  if (params.from) search.set('from', params.from)
+  if (params.to) search.set('to', params.to)
+  if (params.groupBy) search.set('groupBy', params.groupBy)
+  const qs = search.toString()
+  return qs ? `?${qs}` : ''
+}
+
+export function fetchMetrics(params: MetricsParams): Promise<MetricsResponse> {
+  return apiFetch<MetricsResponse>(`/api/admin/metrics${metricsQuery(params)}`)
+}
+
+// The CSV export is a blob response that still needs the JWT, so it can go through
+// neither apiFetch (which parses JSON) nor a plain <a href> (which can't carry the header).
+export async function downloadMetricsCsv(params: MetricsParams): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/admin/metrics/export${metricsQuery(params)}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  })
+
+  if (res.status === 401) {
+    throw clearAuthAndRedirect()
+  }
+  if (!res.ok) {
+    throw (await res.json()) as ApiError
+  }
+
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = 'llm-usage-metrics.csv'
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  URL.revokeObjectURL(url)
 }

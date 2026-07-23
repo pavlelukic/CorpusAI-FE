@@ -12,6 +12,7 @@ interface AdminSidebarProps {
 const navItems: { to: string; icon: typeof Users; label: TranslationKey }[] = [
   { to: '/admin/users', icon: Users, label: 'admin.nav.users' },
   { to: '/admin/subjects', icon: BookText, label: 'admin.nav.subjects' },
+  { to: '/admin/metrics', icon: BarChart3, label: 'admin.nav.metrics' },
 ]
 
 function AdminSidebar({ onNavigate }: AdminSidebarProps) {
@@ -37,18 +38,6 @@ function AdminSidebar({ onNavigate }: AdminSidebarProps) {
           {t(label, lang)}
         </NavLink>
       ))}
-
-      {/* Metrics lands in a later section — shown as a disabled stub for now. */}
-      <span
-        aria-disabled
-        className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-muted-foreground/60"
-      >
-        <BarChart3 className="size-[18px] shrink-0" />
-        {t('admin.nav.metrics', lang)}
-        <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground/70 uppercase">
-          {t('admin.nav.metricsSoon', lang)}
-        </span>
-      </span>
     </nav>
   )
 }

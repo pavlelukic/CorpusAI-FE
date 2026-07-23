@@ -171,7 +171,6 @@ const en = {
   'admin.nav.users': 'Users',
   'admin.nav.subjects': 'Subjects',
   'admin.nav.metrics': 'Metrics',
-  'admin.nav.metricsSoon': 'soon',
   'admin.nav.openMenu': 'Open admin menu',
   'admin.subjects.title': 'Subjects',
   'admin.users.title': 'Users',
@@ -257,6 +256,14 @@ const en = {
   'admin.users.revokeConfirm.title': 'Revoke access?',
   'admin.users.revokeConfirm.body': 'This user will lose access to "{{subject}}".',
   'admin.users.revokeConfirm.confirm': 'Revoke',
+  'metrics.title': 'Usage metrics',
+  'metrics.subtitle': 'Token usage and latency across features, providers and models.',
+  'metrics.tile.calls': 'Calls',
+  'metrics.tile.inputTokens': 'Input tokens',
+  'metrics.tile.outputTokens': 'Output tokens',
+  'metrics.tile.totalTokens': 'Total tokens',
+  'metrics.tile.avgLatency': 'Avg latency',
+  'metrics.tile.p95Latency': 'p95 latency',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -430,7 +437,6 @@ const sr: Record<TranslationKey, string> = {
   'admin.nav.users': 'Korisnici',
   'admin.nav.subjects': 'Predmeti',
   'admin.nav.metrics': 'Metrike',
-  'admin.nav.metricsSoon': 'uskoro',
   'admin.nav.openMenu': 'Otvori admin meni',
   'admin.subjects.title': 'Predmeti',
   'admin.users.title': 'Korisnici',
@@ -517,6 +523,14 @@ const sr: Record<TranslationKey, string> = {
   'admin.users.revokeConfirm.title': 'Oduzeti pristup?',
   'admin.users.revokeConfirm.body': 'Ovaj korisnik će izgubiti pristup predmetu "{{subject}}".',
   'admin.users.revokeConfirm.confirm': 'Oduzmi',
+  'metrics.title': 'Metrike korišćenja',
+  'metrics.subtitle': 'Potrošnja tokena i vreme odgovora po funkcijama, provajderima i modelima.',
+  'metrics.tile.calls': 'Pozivi',
+  'metrics.tile.inputTokens': 'Input tokeni',
+  'metrics.tile.outputTokens': 'Output tokeni',
+  'metrics.tile.totalTokens': 'Ukupno tokena',
+  'metrics.tile.avgLatency': 'Prosečno vreme odgovora',
+  'metrics.tile.p95Latency': 'Vreme p95',
 }
 
 const translations: Record<Lang, Record<TranslationKey, string>> = { en, sr }
