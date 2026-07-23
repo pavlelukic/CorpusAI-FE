@@ -6,6 +6,8 @@ interface SegmentedControlProps<T extends string> {
   value: T
   onChange: (value: T) => void
   disabled?: boolean
+  /** Override the default 224px width when more (or fewer) cells need the room. */
+  className?: string
   'aria-label'?: string
 }
 
@@ -15,6 +17,7 @@ function SegmentedControl<T extends string>({
   value,
   onChange,
   disabled = false,
+  className,
   'aria-label': ariaLabel,
 }: SegmentedControlProps<T>) {
   return (
@@ -22,7 +25,10 @@ function SegmentedControl<T extends string>({
       role="group"
       aria-label={ariaLabel}
       // Fixed width with equal cells so stacked controls line up whatever their labels say.
-      className="flex h-10 w-[224px] items-center overflow-hidden rounded-[10px] border border-border"
+      className={cn(
+        'flex h-10 w-[224px] items-center overflow-hidden rounded-[10px] border border-border',
+        className,
+      )}
     >
       {options.map((option, i) => (
         <Fragment key={option.value}>

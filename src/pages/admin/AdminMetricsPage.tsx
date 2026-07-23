@@ -4,19 +4,38 @@ import { toast } from 'sonner'
 import { downloadMetricsCsv } from '@/api/admin'
 import { useAdminMetrics } from '@/hooks/useAdminMetrics'
 import { useLang } from '@/lib/LangContext'
-import { t } from '@/lib/i18n'
+import { t, type Lang, type TranslationKey } from '@/lib/i18n'
 import { cn, formatNumber } from '@/lib/utils'
-import type { MetricsParams } from '@/types'
+import { MODEL_LABEL, PROVIDER_LABEL } from '@/lib/chatMeta'
+import type { MetricsGroupBy, MetricsParams, ModelProvider } from '@/types'
 import SegmentedControl from '@/components/SegmentedControl'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 const cardShadow =
   'shadow-[0_2px_6px_rgba(60,40,25,0.06),0_18px_40px_rgba(60,40,25,0.08)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)]'
 
+const headCell = 'text-[12px] font-semibold tracking-wide text-muted-foreground uppercase'
+
 type RangePreset = '1d' | '7d' | '30d' | 'all'
+type GroupSelection = 'none' | MetricsGroupBy
 
 const PRESET_DAYS: Record<Exclude<RangePreset, 'all'>, number> = { '1d': 1, '7d': 7, '30d': 30 }
+
+const FEATURE_LABEL_KEY: Record<string, TranslationKey> = {
+  CHAT: 'metrics.feature.CHAT',
+  FLASHCARDS: 'metrics.feature.FLASHCARDS',
+  QUIZ: 'metrics.feature.QUIZ',
+  QUERY_COMPRESSION: 'metrics.feature.QUERY_COMPRESSION',
+}
 
 /**
  * Presets set only `from` (a rolling window ending now); `to` is omitted so the server's
@@ -26,6 +45,14 @@ function rangeToParams(preset: RangePreset): Pick<MetricsParams, 'from'> {
   if (preset === 'all') return {}
   const from = new Date(Date.now() - PRESET_DAYS[preset] * 24 * 60 * 60 * 1000)
   return { from: from.toISOString() }
+}
+
+/** Data-driven: an unknown model/feature key falls back to the raw string rather than crashing. */
+function labelForKey(groupBy: MetricsGroupBy, key: string, lang: Lang): string {
+  if (groupBy === 'provider') return PROVIDER_LABEL[key as ModelProvider] ?? key
+  if (groupBy === 'model') return MODEL_LABEL[key] ?? key
+  const featureKey = FEATURE_LABEL_KEY[key]
+  return featureKey ? t(featureKey, lang) : key
 }
 
 function StatTile({ label, value, unit }: { label: string; value: string; unit?: string }) {
@@ -45,14 +72,19 @@ function StatTile({ label, value, unit }: { label: string; value: string; unit?:
 function AdminMetricsPage() {
   const { lang } = useLang()
   const [range, setRange] = useState<RangePreset>('all')
+  const [groupBy, setGroupBy] = useState<GroupSelection>('none')
   const [exporting, setExporting] = useState(false)
 
-  // Freeze the rolling window at the moment the preset changes, so the query key stays
-  // stable across renders instead of drifting with every Date.now() call.
-  const params = useMemo<MetricsParams>(() => rangeToParams(range), [range])
+  // Freeze the rolling window at the moment a filter changes, so the query key stays stable
+  // across renders instead of drifting with every Date.now() call.
+  const params = useMemo<MetricsParams>(
+    () => ({ ...rangeToParams(range), ...(groupBy !== 'none' ? { groupBy } : {}) }),
+    [range, groupBy],
+  )
 
   const { data, isLoading, error, refetch } = useAdminMetrics(params)
   const overall = data?.overall
+  const groups = data?.groups ?? []
 
   async function handleExport() {
     setExporting(true)
@@ -75,19 +107,37 @@ function AdminMetricsPage() {
       </div>
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-foreground">{t('metrics.filters.period', lang)}</span>
-          <SegmentedControl
-            aria-label={t('metrics.filters.period', lang)}
-            value={range}
-            onChange={setRange}
-            options={[
-              { value: '1d', label: t('metrics.range.1d', lang) },
-              { value: '7d', label: t('metrics.range.7d', lang) },
-              { value: '30d', label: t('metrics.range.30d', lang) },
-              { value: 'all', label: t('metrics.range.all', lang) },
-            ]}
-          />
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">{t('metrics.filters.period', lang)}</span>
+            <SegmentedControl
+              aria-label={t('metrics.filters.period', lang)}
+              value={range}
+              onChange={setRange}
+              options={[
+                { value: '1d', label: t('metrics.range.1d', lang) },
+                { value: '7d', label: t('metrics.range.7d', lang) },
+                { value: '30d', label: t('metrics.range.30d', lang) },
+                { value: 'all', label: t('metrics.range.all', lang) },
+              ]}
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">{t('metrics.group.label', lang)}</span>
+            <SegmentedControl
+              aria-label={t('metrics.group.label', lang)}
+              value={groupBy}
+              onChange={setGroupBy}
+              className="w-full sm:w-[380px]"
+              options={[
+                { value: 'none', label: t('metrics.group.none', lang) },
+                { value: 'provider', label: t('metrics.group.provider', lang) },
+                { value: 'model', label: t('metrics.group.model', lang) },
+                { value: 'feature', label: t('metrics.group.feature', lang) },
+              ]}
+            />
+          </div>
         </div>
 
         <Button variant="outline" onClick={handleExport} disabled={exporting}>
@@ -141,6 +191,75 @@ function AdminMetricsPage() {
           </div>
         )}
       </div>
+
+      {!error && groupBy !== 'none' && (
+        <div className="mt-6">
+          {isLoading ? (
+            <Skeleton className="h-[220px] rounded-2xl" />
+          ) : groups.length === 0 ? (
+            <p className="py-8 text-center text-[15px] text-muted-foreground">
+              {t('metrics.noData', lang)}
+            </p>
+          ) : (
+            <div className={cn('overflow-x-auto rounded-2xl border border-border bg-card', cardShadow)}>
+              <Table className="min-w-[680px]">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className={cn('px-4', headCell)}>
+                      {t(`metrics.group.${groupBy}`, lang)}
+                    </TableHead>
+                    <TableHead className={cn(headCell, 'text-right')}>
+                      {t('metrics.tile.calls', lang)}
+                    </TableHead>
+                    <TableHead className={cn(headCell, 'text-right')}>
+                      {t('metrics.tile.inputTokens', lang)}
+                    </TableHead>
+                    <TableHead className={cn(headCell, 'text-right')}>
+                      {t('metrics.tile.outputTokens', lang)}
+                    </TableHead>
+                    <TableHead className={cn(headCell, 'text-right')}>
+                      {t('metrics.tile.totalTokens', lang)}
+                    </TableHead>
+                    <TableHead className={cn(headCell, 'text-right')}>
+                      {t('metrics.tile.avgLatency', lang)}
+                    </TableHead>
+                    <TableHead className={cn('px-4 text-right', headCell)}>
+                      {t('metrics.tile.p95Latency', lang)}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {groups.map((group) => (
+                    <TableRow key={group.key}>
+                      <TableCell className="px-4 py-3 font-medium text-foreground">
+                        {labelForKey(groupBy, group.key, lang)}
+                      </TableCell>
+                      <TableCell className="py-3 text-right tabular-nums">
+                        {formatNumber(group.calls, lang)}
+                      </TableCell>
+                      <TableCell className="py-3 text-right tabular-nums">
+                        {formatNumber(group.totalInputTokens, lang)}
+                      </TableCell>
+                      <TableCell className="py-3 text-right tabular-nums">
+                        {formatNumber(group.totalOutputTokens, lang)}
+                      </TableCell>
+                      <TableCell className="py-3 text-right tabular-nums">
+                        {formatNumber(group.totalTokens, lang)}
+                      </TableCell>
+                      <TableCell className="py-3 text-right tabular-nums">
+                        {formatNumber(Math.round(group.avgLatencyMs), lang)} ms
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-right tabular-nums">
+                        {formatNumber(Math.round(group.p95LatencyMs), lang)} ms
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
