@@ -15,6 +15,7 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import AdminSubjectsPage from '@/pages/admin/AdminSubjectsPage'
 import AdminDocumentsPage from '@/pages/admin/AdminDocumentsPage'
 import AdminUsersPage from '@/pages/admin/AdminUsersPage'
+import AdminMetricsPage from '@/pages/admin/AdminMetricsPage'
 import RouteErrorFallback from '@/components/RouteErrorFallback'
 
 export const router = createBrowserRouter([
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
                   { path: 'subjects', element: <AdminSubjectsPage /> },
                   { path: 'subjects/:subjectId/documents', element: <AdminDocumentsPage /> },
                   { path: 'users', element: <AdminUsersPage /> },
+                  { path: 'metrics', element: <AdminMetricsPage /> },
                 ],
               },
             ],

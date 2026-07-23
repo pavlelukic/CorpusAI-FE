@@ -6,6 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Thousands separators in the active locale, e.g. "12,480" / "12.480". */
+export function formatNumber(value: number, lang: Lang): string {
+  return new Intl.NumberFormat(lang === 'sr' ? 'sr-Latn-RS' : 'en-GB').format(value)
+}
+
 const RELATIVE_DIVISIONS: { amount: number; unit: Intl.RelativeTimeFormatUnit }[] = [
   { amount: 60, unit: 'second' },
   { amount: 60, unit: 'minute' },

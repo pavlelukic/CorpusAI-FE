@@ -201,3 +201,31 @@ export interface DocumentResponse {
   uploadedAt: string
   errorMessage: string | null
 }
+
+// Admin usage metrics. Latency fields are doubles; everything is zeros (never null)
+// on an empty range.
+export interface UsageTotals {
+  calls: number
+  totalInputTokens: number
+  totalOutputTokens: number
+  totalTokens: number
+  avgLatencyMs: number
+  p95LatencyMs: number
+}
+
+export interface UsageGroup extends UsageTotals {
+  key: string
+}
+
+export interface MetricsResponse {
+  overall: UsageTotals
+  groups: UsageGroup[]
+}
+
+export type MetricsGroupBy = 'provider' | 'model' | 'feature'
+
+export interface MetricsParams {
+  from?: string
+  to?: string
+  groupBy?: MetricsGroupBy
+}
